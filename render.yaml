@@ -1,0 +1,57 @@
+# render.yaml - Render Blueprint Configuration
+# https://render.com/docs/blueprint-spec
+#
+# To deploy on Render:
+# 1. Push your code to GitHub/GitLab
+# 2. Go to Render Dashboard > New > Blueprint
+# 3. Connect your repository
+# 4. Render will auto-detect this file and configure your service
+
+services:
+  - type: web
+    name: erp-backend
+    runtime: docker
+    dockerfilePath: ./Backend/Dockerfile
+    dockerContext: ./Backend
+    region: oregon # or singapore, frankfurt, ohio
+    plan: free # free, starter, standard, pro
+
+    # Health check configuration
+    healthCheckPath: /actuator/health
+
+    # Environment variables (set these in Render Dashboard for security)
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: JWT_SECRET
+        generateValue: true # Render will auto-generate a secure secret
+      - key: JWT_EXPIRATION
+        value: 86400000
+      - key: CORS_ORIGINS
+        sync: false # Set this manually to your frontend URL
+      - key: DATABASE_URL
+        fromDatabase:
+          name: erp-database
+          property: connectionString
+      - key: DATABASE_USER
+        fromDatabase:
+          name: erp-database
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: erp-database
+          property: password
+      - key: DATABASE_DRIVER
+        value: org.postgresql.Driver
+      - key: JPA_DIALECT
+        value: org.hibernate.dialect.PostgreSQLDialect
+      - key: JPA_DDL_AUTO
+        value: update
+
+# Optional: PostgreSQL Database
+databases:
+  - name: erp-database
+    databaseName: erpdb
+    user: erpuser
+    plan: free # free, starter, standard, pro
+    region: oregon

@@ -1,0 +1,376 @@
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { PlusCircleIcon, TrashIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
+
+const NewSalesOrderPage = () => {
+    const [formData, setFormData] = useState({
+        customerName: '',
+        salesOrderNumber: 'SO-000001',
+        referenceNumber: '',
+        salesOrderDate: new Date().toISOString().split('T')[0],
+        shipmentDate: '',
+        salesperson: '',
+        items: [
+            { details: '', quantity: 1, rate: 0, discount: 0, amount: 0 }
+        ],
+        taxType: 'tds', // 'tds' or 'tcs'
+        selectedTax: '',
+        adjustmentLabel: 'Adjustment',
+        adjustmentAmount: 0,
+        customerNotes: '',
+        termsConditions: ''
+    });
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleItemChange = (index, field, value) => {
+        const updatedItems = [...formData.items];
+        updatedItems[index][field] = value;
+
+        // Recalculate amount
+        const qty = parseFloat(updatedItems[index].quantity) || 0;
+        const rate = parseFloat(updatedItems[index].rate) || 0;
+        const discount = parseFloat(updatedItems[index].discount) || 0;
+        updatedItems[index].amount = (qty * rate) * (1 - discount / 100);
+
+        setFormData(prev => ({
+            ...prev,
+            items: updatedItems
+        }));
+    };
+
+    const addItem = () => {
+        setFormData(prev => ({
+            ...prev,
+            items: [...prev.items, { details: '', quantity: 1, rate: 0, discount: 0, amount: 0 }]
+        }));
+    };
+
+    const removeItem = (index) => {
+        if (formData.items.length > 1) {
+            setFormData(prev => ({
+                ...prev,
+                items: prev.items.filter((_, i) => i !== index)
+            }));
+        }
+    };
+
+    const calculateSubTotal = () => {
+        return formData.items.reduce((sum, item) => sum + (item.amount || 0), 0);
+    };
+
+    const calculateTotal = () => {
+        const subTotal = calculateSubTotal();
+        const adjustment = parseFloat(formData.adjustmentAmount) || 0;
+        // Tax calculation logic would go here, for now assuming 0 tax impact for simple UI
+        return subTotal + adjustment;
+    };
+
+    return (
+        <div className="">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h1 className="text-2xl font-bold text-gray-900">New Sales Order</h1>
+                <Link to="/sales/salesorders" className="text-gray-500 hover:text-gray-700">
+                    <span className="text-2xl">&times;</span>
+                </Link>
+            </div>
+
+            {/* Form Container */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8 space-y-8">
+
+                {/* Top Section */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-red-500 mb-1">Customer Name*</label>
+                            <select
+                                name="customerName"
+                                value={formData.customerName}
+                                onChange={handleInputChange}
+                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
+                            >
+                                <option value="">Select or add a customer</option>
+                                <option value="Customer A">Customer A</option>
+                                <option value="Customer B">Customer B</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-red-500 mb-1">Sales Order#*</label>
+                            <input
+                                type="text"
+                                name="salesOrderNumber"
+                                value={formData.salesOrderNumber}
+                                onChange={handleInputChange}
+                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Reference#</label>
+                            <input
+                                type="text"
+                                name="referenceNumber"
+                                value={formData.referenceNumber}
+                                onChange={handleInputChange}
+                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
+                            />
+                        </div>
+                    </div>
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-red-500 mb-1">Sales Order Date*</label>
+                                <input
+                                    type="date"
+                                    name="salesOrderDate"
+                                    value={formData.salesOrderDate}
+                                    onChange={handleInputChange}
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Shipment Date</label>
+                                <input
+                                    type="date"
+                                    name="shipmentDate"
+                                    value={formData.shipmentDate}
+                                    onChange={handleInputChange}
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Salesperson</label>
+                            <select
+                                name="salesperson"
+                                value={formData.salesperson}
+                                onChange={handleInputChange}
+                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2"
+                            >
+                                <option value="">Select or Add Salesperson</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Item Table */}
+                <div className="mt-8">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Item Table</h3>
+                    <div className="overflow-x-auto border border-gray-200 rounded-lg">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/2">Item Details</th>
+                                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Rate</th>
+                                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Discount (%)</th>
+                                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                    <th className="px-4 py-3 w-10"></th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {formData.items.map((item, index) => (
+                                    <tr key={index}>
+                                        <td className="px-4 py-2">
+                                            <input
+                                                type="text"
+                                                placeholder="Type or click to select an item."
+                                                value={item.details}
+                                                onChange={(e) => handleItemChange(index, 'details', e.target.value)}
+                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1"
+                                            />
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <input
+                                                type="number"
+                                                value={item.quantity}
+                                                onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
+                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1 text-right"
+                                            />
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <input
+                                                type="number"
+                                                value={item.rate}
+                                                onChange={(e) => handleItemChange(index, 'rate', e.target.value)}
+                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1 text-right"
+                                            />
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <input
+                                                type="number"
+                                                value={item.discount}
+                                                onChange={(e) => handleItemChange(index, 'discount', e.target.value)}
+                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-1 text-right"
+                                            />
+                                        </td>
+                                        <td className="px-4 py-2 text-right text-sm font-medium text-gray-900">
+                                            {item.amount.toFixed(2)}
+                                        </td>
+                                        <td className="px-4 py-2 text-center">
+                                            {formData.items.length > 1 && (
+                                                <button
+                                                    onClick={() => removeItem(index)}
+                                                    className="text-red-400 hover:text-red-600"
+                                                >
+                                                    <TrashIcon className="w-5 h-5" />
+                                                </button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="flex space-x-4 mt-2">
+                        <button
+                            type="button"
+                            onClick={addItem}
+                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                            <PlusCircleIcon className="w-5 h-5 mr-2" />
+                            Add New Row
+                        </button>
+                        <button
+                            type="button"
+                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                            <PlusCircleIcon className="w-5 h-5 mr-2" />
+                            Add Items in Bulk
+                        </button>
+                    </div>
+
+                    {/* Total Section */}
+                    <div className="mt-8 flex justify-end">
+                        <div className="w-full md:w-1/2 lg:w-1/3 bg-gray-50 p-6 rounded-lg space-y-4">
+                            <div className="flex justify-between text-sm font-medium text-gray-700">
+                                <span>Sub Total</span>
+                                <span>{calculateSubTotal().toFixed(2)}</span>
+                            </div>
+
+                            {/* TDS/TCS */}
+                            <div className="flex items-center justify-between space-x-2">
+                                <div className="flex items-center space-x-2">
+                                    <label className="inline-flex items-center">
+                                        <input type="radio" name="taxType" value="tds" checked={formData.taxType === 'tds'} onChange={handleInputChange} className="text-blue-600 focus:ring-blue-500" />
+                                        <span className="ml-1 text-sm text-gray-700">TDS</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <input type="radio" name="taxType" value="tcs" checked={formData.taxType === 'tcs'} onChange={handleInputChange} className="text-blue-600 focus:ring-blue-500" />
+                                        <span className="ml-1 text-sm text-gray-700">TCS</span>
+                                    </label>
+                                </div>
+                                <select
+                                    name="selectedTax"
+                                    value={formData.selectedTax}
+                                    onChange={handleInputChange}
+                                    className="block w-32 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs py-1"
+                                >
+                                    <option value="">Select a Tax</option>
+                                </select>
+                                <span className="text-sm text-gray-500">- 0.00</span>
+                            </div>
+
+                            {/* Adjustment */}
+                            <div className="flex items-center justify-between space-x-2">
+                                <div className="flex items-center space-x-2 w-full">
+                                    <input
+                                        type="text"
+                                        name="adjustmentLabel"
+                                        value={formData.adjustmentLabel}
+                                        onChange={handleInputChange}
+                                        className="block w-1/2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs py-1"
+                                    />
+                                    <input
+                                        type="number"
+                                        name="adjustmentAmount"
+                                        value={formData.adjustmentAmount}
+                                        onChange={handleInputChange}
+                                        className="block w-1/2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs py-1 text-right"
+                                    />
+                                </div>
+                                <span className="text-sm text-gray-900 font-medium">
+                                    {parseFloat(formData.adjustmentAmount || 0).toFixed(2)}
+                                </span>
+                            </div>
+
+                            <div className="flex justify-between text-base font-bold text-gray-900 border-t pt-4">
+                                <span>Total ( ₹ )</span>
+                                <span>{calculateTotal().toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Footer Details */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Customer Notes</label>
+                        <textarea
+                            name="customerNotes"
+                            rows="3"
+                            placeholder="Enter any notes to be displayed in your transaction"
+                            value={formData.customerNotes}
+                            onChange={handleInputChange}
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Terms & Conditions</label>
+                        <textarea
+                            name="termsConditions"
+                            rows="3"
+                            placeholder="Enter the terms and conditions of your business to be displayed in your transaction"
+                            value={formData.termsConditions}
+                            onChange={handleInputChange}
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                        />
+                    </div>
+                </div>
+
+                {/* Attachments */}
+                <div className="pt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Attach File(s) to Sales Order</label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-start justify-center hover:bg-gray-50 transition cursor-pointer w-full md:w-1/2">
+                        <div className="flex items-center space-x-2 text-gray-600">
+                            <ArrowUpTrayIcon className="w-5 h-5" />
+                            <span className="text-sm font-medium">Upload File</span>
+                            <span className="text-xs text-gray-400 ml-2">▼</span>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1">You can upload a maximum of 10 files, 5MB each</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="mt-8 flex justify-between items-center pb-8">
+                <div className="flex space-x-4">
+                    <button className="py-2 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition shadow-sm">
+                        Save as Draft
+                    </button>
+                    <button className="py-2 px-4 text-sm font-medium text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 transition focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Save and Send
+                    </button>
+                    <Link
+                        to="/sales/salesorders"
+                        className="py-2 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition shadow-sm"
+                    >
+                        Cancel
+                    </Link>
+                </div>
+                <div className="text-sm text-gray-500 text-right">
+                    <p>Total Amount: ₹ {calculateTotal().toFixed(2)}</p>
+                    <p>Total Quantity: {formData.items.reduce((sum, item) => sum + (parseFloat(item.quantity) || 0), 0)}</p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default NewSalesOrderPage;

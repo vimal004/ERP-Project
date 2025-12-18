@@ -1,0 +1,39 @@
+# ===================================================================
+# Docker Ignore File
+# ===================================================================
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Build outputs
+target/
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation
+*.md
+!README.md
+
+# Docker files (prevent recursive copy)
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Environment files (should use platform secrets)
+.env
+.env.*
+
+# Test files
+src/test/
