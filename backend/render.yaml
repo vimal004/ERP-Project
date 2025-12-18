@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: erp-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USER
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://erp-project-orcin.vercel.app
+    healthCheckPath: /actuator/health
