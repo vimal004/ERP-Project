@@ -19,7 +19,7 @@ services:
     # Health check configuration
     healthCheckPath: /actuator/health
 
-    # Environment variables (set these in Render Dashboard for security)
+    # Environment variables
     envVars:
       - key: PORT
         value: 8080
@@ -30,28 +30,14 @@ services:
       - key: CORS_ORIGINS
         value: https://erp-project-orcin.vercel.app
       - key: DATABASE_URL
-        fromDatabase:
-          name: erp-database
-          property: connectionString
+        value: jdbc:h2:mem:erpdb
       - key: DATABASE_USER
-        fromDatabase:
-          name: erp-database
-          property: user
+        value: sa
       - key: DATABASE_PASSWORD
-        fromDatabase:
-          name: erp-database
-          property: password
+        value: ""
       - key: DATABASE_DRIVER
-        value: org.postgresql.Driver
+        value: org.h2.Driver
       - key: JPA_DIALECT
-        value: org.hibernate.dialect.PostgreSQLDialect
+        value: org.hibernate.dialect.H2Dialect
       - key: JPA_DDL_AUTO
-        value: update
-
-# Optional: PostgreSQL Database
-databases:
-  - name: erp-database
-    databaseName: erpdb
-    user: erpuser
-    plan: free # free, starter, standard, pro
-    region: oregon
+        value: create-drop
