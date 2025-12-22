@@ -29,11 +29,10 @@ services:
         value: 86400000
       - key: CORS_ORIGINS
         value: https://erp-project-orcin.vercel.app
-      # Database credentials (Supabase PostgreSQL)
-      # Note: Using session mode (port 5432) for better compatibility
+      # Database credentials (Neon PostgreSQL)
       - key: DATABASE_URL
-        value: jdbc:postgresql://db.uzjtuknqawujxhtrakbs.supabase.co:5432/postgres?sslmode=require
+        value: jdbc:postgresql://ep-green-brook-ahji74ts-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require
       - key: DATABASE_USER
-        value: postgres
+        value: neondb_owner
       - key: DATABASE_PASSWORD
-        value: "Zaq1@wsx1234"
+        value: npg_a7IR9OMJApsD
