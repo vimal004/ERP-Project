@@ -10,6 +10,7 @@ import {
   PauseIcon,
 } from "@heroicons/react/24/outline";
 import { recurringInvoicesService } from "../../services/recurringInvoicesService";
+import { isAdmin } from "../../services/authService";
 
 /**
  * RecurringInvoicesPage - Material Design 3 (Google Store Aesthetic)
@@ -98,24 +99,26 @@ const RecurringInvoicesPage = () => {
         >
           Recurring Invoices
         </h1>
-        <Link
-          to="/sales/recurring-invoices/new"
-          className="flex items-center text-sm font-medium py-3 px-6 text-white transition-all duration-200"
-          style={{
-            backgroundColor: "#1a73e8",
-            borderRadius: "9999px",
-          }}
-          onMouseOver={(e) =>
-            (e.currentTarget.style.backgroundColor = "#1557b0")
-          }
-          onMouseOut={(e) =>
-            (e.currentTarget.style.backgroundColor = "#1a73e8")
-          }
-        >
-          <PlusIcon className="w-5 h-5 mr-2" />
-          <span className="hidden sm:inline">New Recurring Invoice</span>
-          <span className="sm:hidden">New</span>
-        </Link>
+        {isAdmin() && (
+          <Link
+            to="/sales/recurring-invoices/new"
+            className="flex items-center text-sm font-medium py-3 px-6 text-white transition-all duration-200"
+            style={{
+              backgroundColor: "#1a73e8",
+              borderRadius: "9999px",
+            }}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.backgroundColor = "#1557b0")
+            }
+            onMouseOut={(e) =>
+              (e.currentTarget.style.backgroundColor = "#1a73e8")
+            }
+          >
+            <PlusIcon className="w-5 h-5 mr-2" />
+            <span className="hidden sm:inline">New Recurring Invoice</span>
+            <span className="sm:hidden">New</span>
+          </Link>
+        )}
       </div>
 
       {/* Content Card */}
@@ -184,7 +187,9 @@ const RecurringInvoicesPage = () => {
             <span className="w-[12%] px-4">Next Invoice</span>
             <span className="w-[10%] px-4">Status</span>
             <span className="w-[12%] px-4 text-right">Amount</span>
-            <span className="w-[16%] px-4 text-center">Actions</span>
+            {isAdmin() && (
+              <span className="w-[16%] px-4 text-center">Actions</span>
+            )}
           </div>
 
           {/* Table Body */}
@@ -260,45 +265,47 @@ const RecurringInvoicesPage = () => {
                 <span className="w-[12%] px-4 text-right font-medium">
                   ₹{invoice.total?.toLocaleString() || "0.00"}
                 </span>
-                <span className="w-[16%] px-4 flex justify-center gap-2">
-                  <button
-                    onClick={() =>
-                      handlePauseResume(invoice.id, invoice.status)
-                    }
-                    className="p-2 rounded-full transition-all duration-200"
-                    style={{
-                      color:
-                        invoice.status === "ACTIVE" ? "#e37400" : "#1e8e3e",
-                    }}
-                    onMouseOver={(e) =>
-                      (e.currentTarget.style.backgroundColor =
-                        invoice.status === "ACTIVE" ? "#fef7e0" : "#e6f4ea")
-                    }
-                    onMouseOut={(e) =>
-                      (e.currentTarget.style.backgroundColor = "transparent")
-                    }
-                  >
-                    {invoice.status === "ACTIVE" ? (
-                      <PauseIcon className="w-4 h-4" />
-                    ) : (
-                      <PlayIcon className="w-4 h-4" />
-                    )}
-                  </button>
-                  <Link
-                    to={`/sales/recurring-invoices/edit/${invoice.id}`}
-                    className="p-2 rounded-full transition-all duration-200 hover:bg-blue-50"
-                    style={{ color: "#1a73e8" }}
-                  >
-                    <PencilIcon className="w-4 h-4" />
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(invoice.id)}
-                    className="p-2 rounded-full transition-all duration-200 hover:bg-red-50"
-                    style={{ color: "#d93025" }}
-                  >
-                    <TrashIcon className="w-4 h-4" />
-                  </button>
-                </span>
+                {isAdmin() && (
+                  <span className="w-[16%] px-4 flex justify-center gap-2">
+                    <button
+                      onClick={() =>
+                        handlePauseResume(invoice.id, invoice.status)
+                      }
+                      className="p-2 rounded-full transition-all duration-200"
+                      style={{
+                        color:
+                          invoice.status === "ACTIVE" ? "#e37400" : "#1e8e3e",
+                      }}
+                      onMouseOver={(e) =>
+                        (e.currentTarget.style.backgroundColor =
+                          invoice.status === "ACTIVE" ? "#fef7e0" : "#e6f4ea")
+                      }
+                      onMouseOut={(e) =>
+                        (e.currentTarget.style.backgroundColor = "transparent")
+                      }
+                    >
+                      {invoice.status === "ACTIVE" ? (
+                        <PauseIcon className="w-4 h-4" />
+                      ) : (
+                        <PlayIcon className="w-4 h-4" />
+                      )}
+                    </button>
+                    <Link
+                      to={`/sales/recurring-invoices/edit/${invoice.id}`}
+                      className="p-2 rounded-full transition-all duration-200 hover:bg-blue-50"
+                      style={{ color: "#1a73e8" }}
+                    >
+                      <PencilIcon className="w-4 h-4" />
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(invoice.id)}
+                      className="p-2 rounded-full transition-all duration-200 hover:bg-red-50"
+                      style={{ color: "#d93025" }}
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </button>
+                  </span>
+                )}
               </div>
             ))
           )}

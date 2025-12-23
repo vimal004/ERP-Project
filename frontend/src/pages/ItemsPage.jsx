@@ -8,6 +8,7 @@ import {
   CubeIcon,
 } from "@heroicons/react/24/outline";
 import { getItems, searchItems, deleteItem } from "../services/itemsService";
+import { isAdmin } from "../services/authService";
 
 /**
  * ItemsPage - Material Design 3 (Google Store Aesthetic)
@@ -115,25 +116,27 @@ const ItemsPage = () => {
         >
           All Items
         </h1>
-        <Link
-          to="/items/new"
-          className="flex items-center text-sm font-medium py-3 px-6 text-white transition-all duration-200"
-          style={{
-            backgroundColor: "#1a73e8",
-            color: "#ffffff",
-            borderRadius: "9999px",
-          }}
-          onMouseOver={(e) =>
-            (e.currentTarget.style.backgroundColor = "#1557b0")
-          }
-          onMouseOut={(e) =>
-            (e.currentTarget.style.backgroundColor = "#1a73e8")
-          }
-        >
-          <PlusIcon className="w-5 h-5 mr-2" />
-          <span className="hidden sm:inline">New Item</span>
-          <span className="sm:hidden">New</span>
-        </Link>
+        {isAdmin() && (
+          <Link
+            to="/items/new"
+            className="flex items-center text-sm font-medium py-3 px-6 text-white transition-all duration-200"
+            style={{
+              backgroundColor: "#1a73e8",
+              color: "#ffffff",
+              borderRadius: "9999px",
+            }}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.backgroundColor = "#1557b0")
+            }
+            onMouseOut={(e) =>
+              (e.currentTarget.style.backgroundColor = "#1a73e8")
+            }
+          >
+            <PlusIcon className="w-5 h-5 mr-2" />
+            <span className="hidden sm:inline">New Item</span>
+            <span className="sm:hidden">New</span>
+          </Link>
+        )}
       </div>
 
       {/* Success Message */}
@@ -238,7 +241,7 @@ const ItemsPage = () => {
               <span className="w-[15%] px-4">Cost Price</span>
               <span className="w-[20%] px-4">Description</span>
               <span className="w-[10%] px-4">Unit</span>
-              <span className="w-[10%] px-4">Actions</span>
+              {isAdmin() && <span className="w-[10%] px-4">Actions</span>}
             </div>
 
             {/* Table Rows */}
@@ -280,24 +283,26 @@ const ItemsPage = () => {
                 <span className="w-[10%] px-4" style={{ color: "#5f6368" }}>
                   {item.unit || "-"}
                 </span>
-                <span className="w-[10%] px-4 flex gap-2">
-                  <Link
-                    to={`/items/${item.id}/edit`}
-                    className="p-2 rounded-full transition-all duration-200 hover:bg-blue-50"
-                    style={{ color: "#1a73e8" }}
-                    title="Edit"
-                  >
-                    <PencilIcon className="w-4 h-4" />
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(item.id, item.name)}
-                    className="p-2 rounded-full transition-all duration-200 hover:bg-red-50"
-                    style={{ color: "#d93025" }}
-                    title="Delete"
-                  >
-                    <TrashIcon className="w-4 h-4" />
-                  </button>
-                </span>
+                {isAdmin() && (
+                  <span className="w-[10%] px-4 flex gap-2">
+                    <Link
+                      to={`/items/${item.id}/edit`}
+                      className="p-2 rounded-full transition-all duration-200 hover:bg-blue-50"
+                      style={{ color: "#1a73e8" }}
+                      title="Edit"
+                    >
+                      <PencilIcon className="w-4 h-4" />
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(item.id, item.name)}
+                      className="p-2 rounded-full transition-all duration-200 hover:bg-red-50"
+                      style={{ color: "#d93025" }}
+                      title="Delete"
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </button>
+                  </span>
+                )}
               </div>
             ))}
           </div>

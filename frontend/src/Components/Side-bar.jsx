@@ -14,6 +14,7 @@ import {
   ChartPieIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
+import { isAdmin } from "../services/authService";
 
 const IconMap = {
   Home: HomeIcon,
@@ -223,12 +224,13 @@ const SidebarItem = ({ item }) => {
                     "Bills",
                     "Vendors",
                     "Manual Journals",
-                  ].includes(sub.name) && (
-                    <PlusIcon
-                      className="w-4 h-4 ml-auto"
-                      style={{ color: "#80868b" }}
-                    />
-                  )}
+                  ].includes(sub.name) &&
+                    isAdmin() && (
+                      <PlusIcon
+                        className="w-4 h-4 ml-auto"
+                        style={{ color: "#80868b" }}
+                      />
+                    )}
                 </Link>
               </li>
             ))}

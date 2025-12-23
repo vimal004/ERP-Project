@@ -116,8 +116,13 @@ public class SecurityConfig {
                                 "/error",
                                 "/actuator/**")
                         .permitAll()
-                        // Admin only endpoints
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // Admin-only write operations
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/**").hasRole("ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/**").hasRole("ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/**").hasRole("ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/**").hasRole("ADMIN")
+                        // All other authenticated users can perform GET
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/**").authenticated()
                         // All other endpoints require authentication
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session

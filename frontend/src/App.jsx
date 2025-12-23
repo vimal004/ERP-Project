@@ -5,7 +5,7 @@ import DashboardPage from "./pages/DashboardPage.jsx";
 import ItemsPage from "./pages/ItemsPage.jsx";
 import NewItemPage from "./pages/NewItemPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
-import { isAuthenticated } from "./services/authService.js";
+import { isAuthenticated, isAdmin } from "./services/authService.js";
 import CustomersPage from "./pages/sales/CustomersPage.jsx";
 import NewCustomerPage from "./pages/sales/NewCustomerPage.jsx";
 import QuotesPage from "./pages/sales/QuotesPage.jsx";
@@ -25,6 +25,16 @@ const ProtectedRoute = () => {
     return <Navigate to="/" replace />;
   }
   return <DashboardLayout />;
+};
+
+const AdminRoute = ({ children }) => {
+  if (!isAuthenticated()) {
+    return <Navigate to="/" replace />;
+  }
+  if (!isAdmin()) {
+    return <Navigate to="/home" replace />;
+  }
+  return children;
 };
 
 // --- Placeholder Pages (Used for non-implemented navigation items) ---
@@ -66,27 +76,80 @@ function App() {
 
         {/* --- Item Routes --- */}
         <Route path="items" element={<ItemsPage />} />
-        <Route path="items/new" element={<NewItemPage />} />
-        <Route path="items/:id/edit" element={<NewItemPage />} />
+        <Route
+          path="items/new"
+          element={
+            <AdminRoute>
+              <NewItemPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="items/:id/edit"
+          element={
+            <AdminRoute>
+              <NewItemPage />
+            </AdminRoute>
+          }
+        />
         {/* --------------------- */}
 
         {/* --- Sales Routes --- */}
         <Route path="sales/customers" element={<CustomersPage />} />
-        <Route path="sales/customers/new" element={<NewCustomerPage />} />
-        <Route path="sales/customers/edit/:id" element={<NewCustomerPage />} />
+        <Route
+          path="sales/customers/new"
+          element={
+            <AdminRoute>
+              <NewCustomerPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="sales/customers/edit/:id"
+          element={
+            <AdminRoute>
+              <NewCustomerPage />
+            </AdminRoute>
+          }
+        />
         <Route path="sales/quotes" element={<QuotesPage />} />
-        <Route path="sales/quotes/new" element={<NewQuotePage />} />
+        <Route
+          path="sales/quotes/new"
+          element={
+            <AdminRoute>
+              <NewQuotePage />
+            </AdminRoute>
+          }
+        />
         <Route path="sales/salesorders" element={<SalesOrdersPage />} />
-        <Route path="sales/salesorders/new" element={<NewSalesOrderPage />} />
+        <Route
+          path="sales/salesorders/new"
+          element={
+            <AdminRoute>
+              <NewSalesOrderPage />
+            </AdminRoute>
+          }
+        />
         <Route path="sales/invoices" element={<InvoicesPage />} />
-        <Route path="sales/invoices/new" element={<NewInvoicePage />} />
+        <Route
+          path="sales/invoices/new"
+          element={
+            <AdminRoute>
+              <NewInvoicePage />
+            </AdminRoute>
+          }
+        />
         <Route
           path="sales/recurringinvoices"
           element={<RecurringInvoicesPage />}
         />
         <Route
           path="sales/recurringinvoices/new"
-          element={<NewRecurringInvoicePage />}
+          element={
+            <AdminRoute>
+              <NewRecurringInvoicePage />
+            </AdminRoute>
+          }
         />
         <Route
           path="sales/deliverychallans"
@@ -94,7 +157,11 @@ function App() {
         />
         <Route
           path="sales/deliverychallans/new"
-          element={<NewDeliveryChallanPage />}
+          element={
+            <AdminRoute>
+              <NewDeliveryChallanPage />
+            </AdminRoute>
+          }
         />
         <Route
           path="sales/paymentsreceived"

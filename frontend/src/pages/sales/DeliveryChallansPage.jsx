@@ -8,6 +8,7 @@ import {
   PencilIcon,
 } from "@heroicons/react/24/outline";
 import { deliveryChallansService } from "../../services/deliveryChallansService";
+import { isAdmin } from "../../services/authService";
 
 /**
  * DeliveryChallansPage - Material Design 3 (Google Store Aesthetic)
@@ -93,24 +94,26 @@ const DeliveryChallansPage = () => {
         >
           Delivery Challans
         </h1>
-        <Link
-          to="/sales/delivery-challans/new"
-          className="flex items-center text-sm font-medium py-3 px-6 text-white transition-all duration-200"
-          style={{
-            backgroundColor: "#1a73e8",
-            borderRadius: "9999px",
-          }}
-          onMouseOver={(e) =>
-            (e.currentTarget.style.backgroundColor = "#1557b0")
-          }
-          onMouseOut={(e) =>
-            (e.currentTarget.style.backgroundColor = "#1a73e8")
-          }
-        >
-          <PlusIcon className="w-5 h-5 mr-2" />
-          <span className="hidden sm:inline">New Delivery Challan</span>
-          <span className="sm:hidden">New</span>
-        </Link>
+        {isAdmin() && (
+          <Link
+            to="/sales/delivery-challans/new"
+            className="flex items-center text-sm font-medium py-3 px-6 text-white transition-all duration-200"
+            style={{
+              backgroundColor: "#1a73e8",
+              borderRadius: "9999px",
+            }}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.backgroundColor = "#1557b0")
+            }
+            onMouseOut={(e) =>
+              (e.currentTarget.style.backgroundColor = "#1a73e8")
+            }
+          >
+            <PlusIcon className="w-5 h-5 mr-2" />
+            <span className="hidden sm:inline">New Delivery Challan</span>
+            <span className="sm:hidden">New</span>
+          </Link>
+        )}
       </div>
 
       {/* Content Card */}
@@ -187,7 +190,9 @@ const DeliveryChallansPage = () => {
             <span className="w-[12%] px-4">Type</span>
             <span className="w-[12%] px-4">Status</span>
             <span className="w-[14%] px-4 text-right">Amount</span>
-            <span className="w-[16%] px-4 text-center">Actions</span>
+            {isAdmin() && (
+              <span className="w-[16%] px-4 text-center">Actions</span>
+            )}
           </div>
 
           {/* Table Body */}
@@ -270,22 +275,24 @@ const DeliveryChallansPage = () => {
                 <span className="w-[14%] px-4 text-right font-medium">
                   ₹{challan.total?.toLocaleString() || "0.00"}
                 </span>
-                <span className="w-[16%] px-4 flex justify-center gap-2">
-                  <Link
-                    to={`/sales/delivery-challans/edit/${challan.id}`}
-                    className="p-2 rounded-full transition-all duration-200 hover:bg-blue-50"
-                    style={{ color: "#1a73e8" }}
-                  >
-                    <PencilIcon className="w-4 h-4" />
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(challan.id)}
-                    className="p-2 rounded-full transition-all duration-200 hover:bg-red-50"
-                    style={{ color: "#d93025" }}
-                  >
-                    <TrashIcon className="w-4 h-4" />
-                  </button>
-                </span>
+                {isAdmin() && (
+                  <span className="w-[16%] px-4 flex justify-center gap-2">
+                    <Link
+                      to={`/sales/delivery-challans/edit/${challan.id}`}
+                      className="p-2 rounded-full transition-all duration-200 hover:bg-blue-50"
+                      style={{ color: "#1a73e8" }}
+                    >
+                      <PencilIcon className="w-4 h-4" />
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(challan.id)}
+                      className="p-2 rounded-full transition-all duration-200 hover:bg-red-50"
+                      style={{ color: "#d93025" }}
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </button>
+                  </span>
+                )}
               </div>
             ))
           )}

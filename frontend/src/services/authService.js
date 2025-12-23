@@ -54,7 +54,8 @@ export const login = async (email, password, expectedRole) => {
     if (error.name === "TypeError" && error.message.includes("fetch")) {
       return {
         success: false,
-        error: "Unable to connect to server. Please ensure the backend is running.",
+        error:
+          "Unable to connect to server. Please ensure the backend is running.",
       };
     }
 
@@ -122,6 +123,14 @@ export const getUserName = () => {
 };
 
 /**
+ * Check if the current user is an admin
+ * @returns {boolean}
+ */
+export const isAdmin = () => {
+  return getUserRole() === "ADMIN";
+};
+
+/**
  * Get complete user information
  * @returns {object | null}
  */
@@ -132,6 +141,7 @@ export const getCurrentUser = () => {
     email: getUserEmail(),
     role: getUserRole(),
     name: getUserName(),
+    isAdmin: isAdmin(),
   };
 };
 

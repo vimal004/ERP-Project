@@ -15,6 +15,7 @@ import {
   searchCustomers,
   deleteCustomer,
 } from "../../services/customersService";
+import { isAdmin } from "../../services/authService";
 
 /**
  * CustomersPage - Material Design 3 (Google Store Aesthetic)
@@ -156,24 +157,26 @@ const CustomersPage = () => {
               className={`w-5 h-5 ${loading ? "animate-spin" : ""}`}
             />
           </button>
-          <Link
-            to="/sales/customers/new"
-            className="flex items-center text-sm font-medium py-3 px-6 text-white transition-all duration-200"
-            style={{
-              backgroundColor: "#1a73e8",
-              borderRadius: "9999px",
-            }}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.backgroundColor = "#1557b0")
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.backgroundColor = "#1a73e8")
-            }
-          >
-            <PlusIcon className="w-5 h-5 mr-2" />
-            <span className="hidden sm:inline">New Customer</span>
-            <span className="sm:hidden">New</span>
-          </Link>
+          {isAdmin() && (
+            <Link
+              to="/sales/customers/new"
+              className="flex items-center text-sm font-medium py-3 px-6 text-white transition-all duration-200"
+              style={{
+                backgroundColor: "#1a73e8",
+                borderRadius: "9999px",
+              }}
+              onMouseOver={(e) =>
+                (e.currentTarget.style.backgroundColor = "#1557b0")
+              }
+              onMouseOut={(e) =>
+                (e.currentTarget.style.backgroundColor = "#1a73e8")
+              }
+            >
+              <PlusIcon className="w-5 h-5 mr-2" />
+              <span className="hidden sm:inline">New Customer</span>
+              <span className="sm:hidden">New</span>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -310,7 +313,9 @@ const CustomersPage = () => {
               </span>
               <span className="w-[13%] px-4">Last Contact</span>
               <span className="w-[10%] px-4">Status</span>
-              <span className="w-[10%] px-4 text-right">Actions</span>
+              {isAdmin() && (
+                <span className="w-[10%] px-4 text-right">Actions</span>
+              )}
             </div>
 
             {/* Table Rows */}
@@ -371,26 +376,28 @@ const CustomersPage = () => {
                     {customer.status || "ACTIVE"}
                   </span>
                 </span>
-                <span className="w-[10%] px-4 text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <Link
-                      to={`/sales/customers/edit/${customer.id}`}
-                      className="p-2 rounded-full transition-all duration-200 hover:bg-blue-50"
-                      style={{ color: "#1a73e8" }}
-                      title="Edit"
-                    >
-                      <PencilIcon className="w-4 h-4" />
-                    </Link>
-                    <button
-                      onClick={() => handleDeleteClick(customer)}
-                      className="p-2 rounded-full transition-all duration-200 hover:bg-red-50"
-                      style={{ color: "#d93025" }}
-                      title="Delete"
-                    >
-                      <TrashIcon className="w-4 h-4" />
-                    </button>
-                  </div>
-                </span>
+                {isAdmin() && (
+                  <span className="w-[10%] px-4 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <Link
+                        to={`/sales/customers/edit/${customer.id}`}
+                        className="p-2 rounded-full transition-all duration-200 hover:bg-blue-50"
+                        style={{ color: "#1a73e8" }}
+                        title="Edit"
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </Link>
+                      <button
+                        onClick={() => handleDeleteClick(customer)}
+                        className="p-2 rounded-full transition-all duration-200 hover:bg-red-50"
+                        style={{ color: "#d93025" }}
+                        title="Delete"
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </span>
+                )}
               </div>
             ))}
 
