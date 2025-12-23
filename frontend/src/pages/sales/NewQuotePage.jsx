@@ -8,6 +8,15 @@ import {
   DocumentTextIcon,
 } from "@heroicons/react/24/outline";
 import { quotesService } from "../../services/quotesService";
+import { getAllCustomers } from "../../services/customersService";
+import {
+  MD3Input,
+  MD3Select,
+  MD3Textarea,
+  MD3Button,
+  MD3Divider,
+  MD3TotalBox,
+} from "../../Components/ui/MD3FormComponents";
 
 /**
  * NewQuotePage - Material Design 3 (Google Store Aesthetic)
@@ -28,6 +37,20 @@ const NewQuotePage = () => {
     subject: "",
     items: [{ details: "", quantity: 1, rate: 0, discount: 0, amount: 0 }],
   });
+
+  const [customers, setCustomers] = useState([]);
+
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const data = await getAllCustomers();
+        setCustomers(data);
+      } catch (err) {
+        console.error("Error fetching customers:", err);
+      }
+    };
+    fetchCustomers();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -128,7 +151,7 @@ const NewQuotePage = () => {
         {/* Top Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-5">
-            <FormSelect
+            <MD3Select
               label="Customer Name"
               required
               name="customerName"
@@ -136,9 +159,12 @@ const NewQuotePage = () => {
               onChange={handleInputChange}
             >
               <option value="">Select or add a customer</option>
-              <option value="Customer A">Customer A</option>
-              <option value="Customer B">Customer B</option>
-            </FormSelect>
+              {customers.map((customer) => (
+                <option key={customer.id} value={customer.displayName}>
+                  {customer.displayName}
+                </option>
+              ))}
+            </MD3Select>
 
             <FormInput
               label="Quote#"

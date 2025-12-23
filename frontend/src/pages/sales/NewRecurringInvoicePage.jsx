@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   PlusCircleIcon,
@@ -7,6 +7,15 @@ import {
   ArrowLeftIcon,
   ArrowPathRoundedSquareIcon,
 } from "@heroicons/react/24/outline";
+import { getAllCustomers } from "../../services/customersService";
+import {
+  MD3Input,
+  MD3Select,
+  MD3Textarea,
+  MD3Button,
+  MD3Divider,
+  MD3TotalBox,
+} from "../../Components/ui/MD3FormComponents";
 
 /**
  * NewRecurringInvoicePage - Material Design 3 (Google Store Aesthetic)
@@ -28,6 +37,20 @@ const NewRecurringInvoicePage = () => {
     customerNotes: "Thanks for your business.",
     termsConditions: "",
   });
+
+  const [customers, setCustomers] = useState([]);
+
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const data = await getAllCustomers();
+        setCustomers(data);
+      } catch (err) {
+        console.error("Error fetching customers:", err);
+      }
+    };
+    fetchCustomers();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -122,17 +145,20 @@ const NewRecurringInvoicePage = () => {
         {/* Top Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-5">
-            <FormSelect
+            <MD3Select
               label="Customer Name"
               required
               name="customerName"
               value={formData.customerName}
               onChange={handleInputChange}
             >
-              <option value="">Select Customer</option>
-              <option value="Customer A">Customer A</option>
-              <option value="Customer B">Customer B</option>
-            </FormSelect>
+              <option value="">Select or add a customer</option>
+              {customers.map((customer) => (
+                <option key={customer.id} value={customer.displayName}>
+                  {customer.displayName}
+                </option>
+              ))}
+            </MD3Select>
             <FormInput
               label="Profile Name"
               required

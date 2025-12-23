@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   PlusCircleIcon,
@@ -8,6 +8,15 @@ import {
   ShoppingBagIcon,
   ArrowUpTrayIcon,
 } from "@heroicons/react/24/outline";
+import { getAllCustomers } from "../../services/customersService";
+import {
+  MD3Input,
+  MD3Select,
+  MD3Textarea,
+  MD3Button,
+  MD3Divider,
+  MD3TotalBox,
+} from "../../Components/ui/MD3FormComponents";
 
 /**
  * NewSalesOrderPage - Material Design 3 (Google Store Aesthetic)
@@ -25,6 +34,20 @@ const NewSalesOrderPage = () => {
     customerNotes: "",
     termsConditions: "",
   });
+
+  const [customers, setCustomers] = useState([]);
+
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const data = await getAllCustomers();
+        setCustomers(data);
+      } catch (err) {
+        console.error("Error fetching customers:", err);
+      }
+    };
+    fetchCustomers();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -116,7 +139,7 @@ const NewSalesOrderPage = () => {
         {/* Top Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-5">
-            <FormSelect
+            <MD3Select
               label="Customer Name"
               required
               name="customerName"
@@ -124,9 +147,12 @@ const NewSalesOrderPage = () => {
               onChange={handleInputChange}
             >
               <option value="">Select or add a customer</option>
-              <option value="Customer A">Customer A</option>
-              <option value="Customer B">Customer B</option>
-            </FormSelect>
+              {customers.map((customer) => (
+                <option key={customer.id} value={customer.displayName}>
+                  {customer.displayName}
+                </option>
+              ))}
+            </MD3Select>
             <FormInput
               label="Sales Order#"
               required

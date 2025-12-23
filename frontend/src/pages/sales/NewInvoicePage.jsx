@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   PlusCircleIcon,
@@ -18,6 +18,7 @@ import {
 } from "../../Components/ui/MD3FormComponents";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import { getAllCustomers } from "../../services/customersService";
 
 const INDIAN_TAX_OPTIONS = [
   { label: "GST (5%)", value: 5 },
@@ -51,6 +52,20 @@ const NewInvoicePage = () => {
     taxRate: 0,
     adjustment: 0,
   });
+
+  const [customers, setCustomers] = useState([]);
+
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const data = await getAllCustomers();
+        setCustomers(data);
+      } catch (err) {
+        console.error("Error fetching customers:", err);
+      }
+    };
+    fetchCustomers();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -370,8 +385,11 @@ const NewInvoicePage = () => {
               onChange={handleInputChange}
             >
               <option value="">Select or add a customer</option>
-              <option value="Customer A">Customer A</option>
-              <option value="Customer B">Customer B</option>
+              {customers.map((customer) => (
+                <option key={customer.id} value={customer.displayName}>
+                  {customer.displayName}
+                </option>
+              ))}
             </MD3Select>
             <MD3Input
               label="Invoice#"
