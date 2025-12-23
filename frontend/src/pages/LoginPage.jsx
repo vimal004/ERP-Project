@@ -301,7 +301,7 @@ const LoginPage = () => {
           {/* Footer */}
           <footer className="text-center mt-[40px]">
             <p className="text-body-small text-onSurface-muted">
-              © 2024 ERP System. All rights reserved.
+              © 2025 ERP System. All rights reserved.
             </p>
           </footer>
         </div>
