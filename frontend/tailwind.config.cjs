@@ -3,117 +3,229 @@ module.exports = {
   content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
+      // Typography - Google Sans with fallbacks
       fontFamily: {
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        sans: [
+          '"Google Sans"',
+          "Roboto",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "sans-serif",
+        ],
+        display: ['"Google Sans"', "Roboto", "sans-serif"],
+        mono: ['"Google Sans Mono"', '"Roboto Mono"', "monospace"],
       },
+
+      // Material Design 3 Colors
       colors: {
-        // Premium Brand Colors
+        // Primary - Google Blue
         primary: {
-          50: "#eff6ff",
-          100: "#dbeafe",
-          200: "#bfdbfe",
-          300: "#93c5fd",
-          400: "#60a5fa",
-          500: "#3b82f6",
-          600: "#2563eb",
-          700: "#1d4ed8",
-          800: "#1e40af",
-          900: "#1e3a8a",
-          950: "#172554",
+          DEFAULT: "#1a73e8",
+          light: "#4285f4",
+          dark: "#1557b0",
+          container: "#d3e3fd",
+          50: "#e8f0fe",
+          100: "#d3e3fd",
+          200: "#aecbfa",
+          300: "#8ab4f8",
+          400: "#669df6",
+          500: "#4285f4",
+          600: "#1a73e8",
+          700: "#1557b0",
+          800: "#174ea6",
+          900: "#0d47a1",
         },
-        // Professional Accent Colors
-        accent: {
-          emerald: "#10b981",
-          amber: "#f59e0b",
-          rose: "#f43f5e",
-          violet: "#8b5cf6",
+
+        // Surface colors
+        surface: {
+          primary: "#ffffff",
+          secondary: "#f8f9fa",
+          tertiary: "#f1f3f4",
+          elevated: "#ffffff",
+          dim: "#e8eaed",
         },
-        // Neutral Grays
-        neutral: {
-          50: "#fafafa",
-          100: "#f5f5f5",
-          200: "#e5e5e5",
-          300: "#d4d4d4",
-          400: "#a3a3a3",
-          500: "#737373",
-          600: "#525252",
-          700: "#404040",
-          800: "#262626",
-          900: "#171717",
+
+        // Text colors following MD3
+        onSurface: {
+          DEFAULT: "#202124",
+          variant: "#5f6368",
+          muted: "#80868b",
+          disabled: "#9aa0a6",
+        },
+
+        // Semantic states
+        success: {
+          DEFAULT: "#1e8e3e",
+          container: "#e6f4ea",
+        },
+        warning: {
+          DEFAULT: "#f9ab00",
+          container: "#fef7e0",
+        },
+        error: {
+          DEFAULT: "#d93025",
+          container: "#fce8e6",
+        },
+
+        // Borders
+        outline: {
+          DEFAULT: "#dadce0",
+          variant: "#e8eaed",
         },
       },
-      // Enhanced shadows for depth and elevation
+
+      // Material Design 3 Shadows/Elevation
       boxShadow: {
-        soft: "0 2px 8px rgba(0, 0, 0, 0.04)",
-        "soft-md": "0 4px 12px rgba(0, 0, 0, 0.06)",
-        "soft-lg": "0 8px 24px rgba(0, 0, 0, 0.08)",
-        "soft-xl": "0 12px 32px rgba(0, 0, 0, 0.1)",
-        "md-2":
-          "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-        "lg-2":
-          "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-        "xl-2":
-          "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-        "inner-soft": "inset 0 2px 4px 0 rgba(0, 0, 0, 0.04)",
-        "glow-blue": "0 0 20px rgba(59, 130, 246, 0.3)",
-        "glow-green": "0 0 20px rgba(16, 185, 129, 0.3)",
+        "elevation-0": "none",
+        "elevation-1":
+          "0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15)",
+        "elevation-2":
+          "0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 2px 6px 2px rgba(60, 64, 67, 0.15)",
+        "elevation-3":
+          "0 4px 8px 3px rgba(60, 64, 67, 0.15), 0 1px 3px 0 rgba(60, 64, 67, 0.3)",
+        "elevation-4":
+          "0 6px 10px 4px rgba(60, 64, 67, 0.15), 0 2px 3px 0 rgba(60, 64, 67, 0.3)",
+        "elevation-5":
+          "0 8px 12px 6px rgba(60, 64, 67, 0.15), 0 4px 4px 0 rgba(60, 64, 67, 0.3)",
+        "focus-ring": "0 0 0 3px rgba(26, 115, 232, 0.2)",
       },
-      // Smooth animations
+
+      // Large rounded corners for MD3
+      borderRadius: {
+        "md3-sm": "8px",
+        "md3-md": "12px",
+        "md3-lg": "16px",
+        "md3-xl": "20px",
+        "md3-2xl": "24px",
+        "md3-3xl": "28px",
+      },
+
+      // 8dp grid spacing system
+      spacing: {
+        0.5: "4px",
+        1: "8px",
+        1.5: "12px",
+        2: "16px",
+        2.5: "20px",
+        3: "24px",
+        4: "32px",
+        5: "40px",
+        6: "48px",
+        7: "56px",
+        8: "64px",
+        10: "80px",
+        12: "96px",
+        16: "128px",
+        20: "160px",
+      },
+
+      // Material motion
+      transitionDuration: {
+        0: "0ms",
+        fast: "150ms",
+        normal: "200ms",
+        slow: "300ms",
+        slower: "400ms",
+      },
+
+      transitionTimingFunction: {
+        "md3-standard": "cubic-bezier(0.2, 0, 0, 1)",
+        "md3-emphasized": "cubic-bezier(0.2, 0, 0, 1)",
+        "md3-decelerate": "cubic-bezier(0.05, 0.7, 0.1, 1)",
+        "md3-accelerate": "cubic-bezier(0.3, 0, 0.8, 0.15)",
+      },
+
+      // Animations
       animation: {
-        "fade-in": "fadeIn 0.3s ease-in-out",
-        "slide-up": "slideUp 0.4s ease-out",
-        "slide-down": "slideDown 0.4s ease-out",
-        "scale-in": "scaleIn 0.2s ease-out",
-        shimmer: "shimmer 2s linear infinite",
-        "pulse-soft": "pulseSoft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "fade-in": "fadeIn 200ms cubic-bezier(0.2, 0, 0, 1)",
+        "fade-up": "fadeUp 250ms cubic-bezier(0.05, 0.7, 0.1, 1)",
+        "scale-in": "scaleIn 200ms cubic-bezier(0.2, 0, 0, 1)",
+        "slide-up": "slideUp 250ms cubic-bezier(0.05, 0.7, 0.1, 1)",
       },
+
       keyframes: {
         fadeIn: {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
         },
-        slideUp: {
-          "0%": { transform: "translateY(10px)", opacity: "0" },
-          "100%": { transform: "translateY(0)", opacity: "1" },
-        },
-        slideDown: {
-          "0%": { transform: "translateY(-10px)", opacity: "0" },
-          "100%": { transform: "translateY(0)", opacity: "1" },
+        fadeUp: {
+          "0%": { opacity: "0", transform: "translateY(8px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
         },
         scaleIn: {
-          "0%": { transform: "scale(0.95)", opacity: "0" },
-          "100%": { transform: "scale(1)", opacity: "1" },
+          "0%": { opacity: "0", transform: "scale(0.96)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
         },
-        shimmer: {
-          "0%": { backgroundPosition: "-1000px 0" },
-          "100%": { backgroundPosition: "1000px 0" },
-        },
-        pulseSoft: {
-          "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.8" },
+        slideUp: {
+          "0%": { opacity: "0", transform: "translateY(16px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
         },
       },
-      // Enhanced spacing
-      spacing: {
-        18: "4.5rem",
-        88: "22rem",
-        100: "25rem",
-        112: "28rem",
-        128: "32rem",
+
+      // Content widths
+      maxWidth: {
+        "content-narrow": "600px",
+        "content-default": "800px",
+        "content-wide": "1100px",
+        "content-full": "1400px",
       },
-      // Border radius
-      borderRadius: {
-        xl: "0.75rem",
-        "2xl": "1rem",
-        "3xl": "1.5rem",
-      },
-      // Backdrop blur
-      backdropBlur: {
-        xs: "2px",
-      },
-      // Transition timing
-      transitionDuration: {
-        400: "400ms",
+
+      // Font sizes following MD3 type scale
+      fontSize: {
+        "display-large": [
+          "3.5rem",
+          { lineHeight: "1.12", letterSpacing: "-0.02em" },
+        ],
+        "display-medium": [
+          "2.75rem",
+          { lineHeight: "1.16", letterSpacing: "-0.015em" },
+        ],
+        "display-small": [
+          "2.25rem",
+          { lineHeight: "1.22", letterSpacing: "-0.01em" },
+        ],
+        "headline-large": [
+          "2rem",
+          { lineHeight: "1.25", letterSpacing: "-0.005em" },
+        ],
+        "headline-medium": [
+          "1.75rem",
+          { lineHeight: "1.28", letterSpacing: "0" },
+        ],
+        "headline-small": [
+          "1.5rem",
+          { lineHeight: "1.33", letterSpacing: "0" },
+        ],
+        "title-large": ["1.375rem", { lineHeight: "1.27", letterSpacing: "0" }],
+        "title-medium": [
+          "1rem",
+          { lineHeight: "1.5", letterSpacing: "0.01em" },
+        ],
+        "title-small": [
+          "0.875rem",
+          { lineHeight: "1.43", letterSpacing: "0.01em" },
+        ],
+        "body-large": ["1rem", { lineHeight: "1.5", letterSpacing: "0.01em" }],
+        "body-medium": [
+          "0.875rem",
+          { lineHeight: "1.43", letterSpacing: "0.015em" },
+        ],
+        "body-small": [
+          "0.75rem",
+          { lineHeight: "1.33", letterSpacing: "0.02em" },
+        ],
+        "label-large": [
+          "0.875rem",
+          { lineHeight: "1.43", letterSpacing: "0.01em" },
+        ],
+        "label-medium": [
+          "0.75rem",
+          { lineHeight: "1.33", letterSpacing: "0.02em" },
+        ],
+        "label-small": [
+          "0.6875rem",
+          { lineHeight: "1.45", letterSpacing: "0.02em" },
+        ],
       },
     },
   },

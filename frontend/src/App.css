@@ -1,35 +1,90 @@
 @import "tailwindcss";
 @import "./utilities.css";
 
-/* Premium ERP Base Styles */
+/* =============================================================================
+   MATERIAL DESIGN 3 BASE STYLES
+   Google Store / Pixel Product Page Aesthetic
+============================================================================= */
+
+:root {
+  /* Primary Colors - Google Blue */
+  --md3-primary: #1a73e8;
+  --md3-primary-light: #4285f4;
+  --md3-primary-dark: #1557b0;
+  --md3-primary-container: #d3e3fd;
+  --md3-on-primary: #ffffff;
+  --md3-on-primary-container: #072b5f;
+
+  /* Surface Colors */
+  --md3-surface: #ffffff;
+  --md3-surface-variant: #f8f9fa;
+  --md3-surface-dim: #f1f3f4;
+  --md3-surface-container: #e8eaed;
+
+  /* Text Colors */
+  --md3-on-surface: #202124;
+  --md3-on-surface-variant: #5f6368;
+  --md3-on-surface-muted: #80868b;
+  --md3-on-surface-disabled: #9aa0a6;
+
+  /* Border/Outline */
+  --md3-outline: #dadce0;
+  --md3-outline-variant: #e8eaed;
+
+  /* Semantic */
+  --md3-success: #1e8e3e;
+  --md3-warning: #f9ab00;
+  --md3-error: #d93025;
+
+  /* Motion */
+  --md3-duration-fast: 150ms;
+  --md3-duration-normal: 200ms;
+  --md3-duration-slow: 300ms;
+  --md3-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md3-easing-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+
+  /* Elevation */
+  --md3-elevation-1: 0 1px 2px 0 rgba(60, 64, 67, 0.3),
+    0 1px 3px 1px rgba(60, 64, 67, 0.15);
+  --md3-elevation-2: 0 1px 2px 0 rgba(60, 64, 67, 0.3),
+    0 2px 6px 2px rgba(60, 64, 67, 0.15);
+  --md3-elevation-3: 0 4px 8px 3px rgba(60, 64, 67, 0.15),
+    0 1px 3px 0 rgba(60, 64, 67, 0.3);
+}
+
+/* Base Typography */
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-family: "Google Sans", "Roboto", -apple-system, BlinkMacSystemFont,
+    sans-serif;
+  font-weight: 400;
+  color: var(--md3-on-surface);
+  background-color: var(--md3-surface-variant);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
-/* Custom Scrollbar */
+/* Custom Scrollbar - Subtle and refined */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f5f5f5;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d4d4d4;
+  background: var(--md3-on-surface-disabled);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a3a3a3;
+  background: var(--md3-on-surface-muted);
 }
 
 /* Remove number input spinners */
@@ -43,4 +98,173 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
+}
+
+/* Focus visible for accessibility */
+:focus-visible {
+  outline: 2px solid var(--md3-primary);
+  outline-offset: 2px;
+}
+
+/* Selection styling */
+::selection {
+  background-color: var(--md3-primary-container);
+  color: var(--md3-on-primary-container);
+}
+
+/* Link styling */
+a {
+  color: var(--md3-primary);
+  text-decoration: none;
+  transition: color var(--md3-duration-normal) var(--md3-easing-standard);
+}
+
+a:hover {
+  color: var(--md3-primary-dark);
+}
+
+/* =============================================================================
+   MATERIAL DESIGN 3 UTILITY CLASSES
+============================================================================= */
+
+/* Typography Classes */
+.text-display-large {
+  font-size: 3.5rem;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+
+.text-display-medium {
+  font-size: 2.75rem;
+  line-height: 1.16;
+  letter-spacing: -0.015em;
+  font-weight: 400;
+}
+
+.text-display-small {
+  font-size: 2.25rem;
+  line-height: 1.22;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+}
+
+.text-headline-large {
+  font-size: 2rem;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+  font-weight: 400;
+}
+
+.text-headline-medium {
+  font-size: 1.75rem;
+  line-height: 1.28;
+  font-weight: 400;
+}
+
+.text-headline-small {
+  font-size: 1.5rem;
+  line-height: 1.33;
+  font-weight: 400;
+}
+
+.text-title-large {
+  font-size: 1.375rem;
+  line-height: 1.27;
+  font-weight: 500;
+}
+
+.text-title-medium {
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  font-weight: 500;
+}
+
+.text-body-large {
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  font-weight: 400;
+}
+
+.text-body-medium {
+  font-size: 0.875rem;
+  line-height: 1.43;
+  letter-spacing: 0.015em;
+  font-weight: 400;
+}
+
+.text-label-large {
+  font-size: 0.875rem;
+  line-height: 1.43;
+  letter-spacing: 0.01em;
+  font-weight: 500;
+}
+
+/* Surface Classes */
+.surface-primary {
+  background-color: var(--md3-surface);
+}
+
+.surface-secondary {
+  background-color: var(--md3-surface-variant);
+}
+
+.surface-container {
+  background-color: var(--md3-surface-container);
+}
+
+/* Elevation Classes */
+.elevation-0 {
+  box-shadow: none;
+}
+
+.elevation-1 {
+  box-shadow: var(--md3-elevation-1);
+}
+
+.elevation-2 {
+  box-shadow: var(--md3-elevation-2);
+}
+
+.elevation-3 {
+  box-shadow: var(--md3-elevation-3);
+}
+
+/* Text Color Classes */
+.text-on-surface {
+  color: var(--md3-on-surface);
+}
+
+.text-on-surface-variant {
+  color: var(--md3-on-surface-variant);
+}
+
+.text-on-surface-muted {
+  color: var(--md3-on-surface-muted);
+}
+
+/* Transition Classes */
+.transition-md3 {
+  transition-property: all;
+  transition-duration: var(--md3-duration-normal);
+  transition-timing-function: var(--md3-easing-standard);
+}
+
+.transition-md3-slow {
+  transition-property: all;
+  transition-duration: var(--md3-duration-slow);
+  transition-timing-function: var(--md3-easing-decelerate);
+}
+
+/* Card Hover Effect - Subtle lift */
+.card-hover-lift {
+  transition: box-shadow var(--md3-duration-normal) var(--md3-easing-standard),
+    transform var(--md3-duration-normal) var(--md3-easing-standard);
+}
+
+.card-hover-lift:hover {
+  box-shadow: var(--md3-elevation-3);
+  transform: translateY(-2px);
 }
