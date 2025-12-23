@@ -77,20 +77,36 @@ const LoginPage = () => {
           </div>
 
           {/* Login Card */}
-          <div className="bg-white rounded-[28px] shadow-elevation-2 p-[40px]">
-            {/* Role Selector - Pill-style tabs */}
-            <div className="flex gap-[8px] p-[4px] bg-surface-tertiary rounded-full mb-[32px]">
+          <div
+            className="p-10"
+            style={{
+              backgroundColor: "#ffffff",
+              borderRadius: "28px",
+              boxShadow:
+                "0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 2px 6px 2px rgba(60, 64, 67, 0.15)",
+            }}
+          >
+            {/* Role Selector - Pill-style tabs with clear active state */}
+            <div
+              className="flex gap-2 p-1 mb-8"
+              style={{
+                backgroundColor: "#e8eaed",
+                borderRadius: "9999px",
+              }}
+            >
               <button
                 type="button"
                 onClick={() => setRole("Admin")}
-                className={`flex-1 flex items-center justify-center gap-[8px] py-[12px] px-[20px] rounded-full text-label-large transition-all duration-200 ease-[cubic-bezier(0.2,0,0,1)] ${
-                  role === "Admin"
-                    ? "bg-white text-onSurface shadow-elevation-1"
-                    : "text-onSurface-variant hover:text-onSurface"
-                }`}
+                style={{
+                  backgroundColor: role === "Admin" ? "#1a73e8" : "transparent",
+                  color: role === "Admin" ? "#ffffff" : "#5f6368",
+                  borderRadius: "9999px",
+                  fontWeight: 500,
+                }}
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-5 text-sm transition-all duration-200"
               >
                 <svg
-                  className="w-[18px] h-[18px]"
+                  className="w-5 h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -107,14 +123,16 @@ const LoginPage = () => {
               <button
                 type="button"
                 onClick={() => setRole("User")}
-                className={`flex-1 flex items-center justify-center gap-[8px] py-[12px] px-[20px] rounded-full text-label-large transition-all duration-200 ease-[cubic-bezier(0.2,0,0,1)] ${
-                  role === "User"
-                    ? "bg-white text-onSurface shadow-elevation-1"
-                    : "text-onSurface-variant hover:text-onSurface"
-                }`}
+                style={{
+                  backgroundColor: role === "User" ? "#1a73e8" : "transparent",
+                  color: role === "User" ? "#ffffff" : "#5f6368",
+                  borderRadius: "9999px",
+                  fontWeight: 500,
+                }}
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-5 text-sm transition-all duration-200"
               >
                 <svg
-                  className="w-[18px] h-[18px]"
+                  className="w-5 h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
