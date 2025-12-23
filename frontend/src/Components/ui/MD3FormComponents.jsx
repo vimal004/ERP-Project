@@ -317,7 +317,7 @@ export const MD3TotalBox = ({
       <span>Sub Total</span>
       <span>
         {currency}
-        {subTotal.toFixed(2)}
+        {Number(subTotal).toFixed(2)}
       </span>
     </div>
 
@@ -384,7 +384,7 @@ export const MD3TotalBox = ({
       />
       <span className="w-20 text-right" style={{ color: "#202124" }}>
         {currency}
-        {adjustment.toFixed(2)}
+        {Number(adjustment || 0).toFixed(2)}
       </span>
     </div>
 
@@ -397,7 +397,7 @@ export const MD3TotalBox = ({
       <span>Total ({currency})</span>
       <span>
         {currency}
-        {total.toFixed(2)}
+        {Number(total).toFixed(2)}
       </span>
     </div>
   </div>

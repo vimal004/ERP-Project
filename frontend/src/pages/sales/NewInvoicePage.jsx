@@ -16,8 +16,8 @@ import {
   MD3Divider,
   MD3TotalBox,
 } from "../../Components/ui/MD3FormComponents";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const INDIAN_TAX_OPTIONS = [
   { label: "GST (5%)", value: 5 },
@@ -112,7 +112,8 @@ const NewInvoicePage = () => {
 
     // Invoice Info Box
     doc.setFontSize(10);
-    doc.autoTable({
+    const tableFunc = autoTable.default || autoTable;
+    tableFunc(doc, {
       startY: 50,
       body: [
         ["Invoice#:", formData.invoiceNumber],
@@ -139,11 +140,11 @@ const NewInvoicePage = () => {
       index + 1,
       item.details,
       item.quantity,
-      item.rate.toFixed(2),
-      item.amount.toFixed(2),
+      Number(item.rate || 0).toFixed(2),
+      Number(item.amount || 0).toFixed(2),
     ]);
 
-    doc.autoTable({
+    tableFunc(doc, {
       startY: 80,
       head: [tableColumn],
       body: tableRows,
@@ -152,17 +153,17 @@ const NewInvoicePage = () => {
     });
 
     // Totals Section
-    const finalY = doc.previousAutoTable.finalY + 10;
-    doc.autoTable({
+    const finalY = doc.lastAutoTable.finalY + 10;
+    tableFunc(doc, {
       startY: finalY,
       body: [
-        ["Sub Total", `INR ${subTotal.toFixed(2)}`],
+        ["Sub Total", `INR ${Number(subTotal).toFixed(2)}`],
         [
           `${formData.taxType} (${formData.taxRate}%)`,
-          `(-) INR ${taxAmount.toFixed(2)}`,
+          `(-) INR ${Number(taxAmount).toFixed(2)}`,
         ],
-        ["Adjustment", `INR ${formData.adjustment.toFixed(2)}`],
-        ["Total", `INR ${total.toFixed(2)}`],
+        ["Adjustment", `INR ${Number(formData.adjustment || 0).toFixed(2)}`],
+        ["Total", `INR ${Number(total).toFixed(2)}`],
       ],
       theme: "plain",
       styles: { halign: "right", fontSize: 10 },
