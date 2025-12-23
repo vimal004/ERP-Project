@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import Sidebar from "./Side-bar";
 import {
   BellIcon,
-  Cog8ToothIcon,
+  PlusIcon,
   QuestionMarkCircleIcon,
   MagnifyingGlassIcon,
   Bars3Icon,
@@ -11,29 +11,84 @@ import {
   ArrowLeftEndOnRectangleIcon,
   UserPlusIcon,
   XMarkIcon,
+  TrashIcon,
+  UserIcon,
 } from "@heroicons/react/24/outline";
 import { logout, getUserRole } from "../services/authService";
+import {
+  fetchUsers,
+  createUser,
+  updateUserRole,
+  deleteUser,
+} from "../services/userService";
 
 /**
- * Settings Modal - Material Design 3
+ * User Management Modal - Material Design 3
  */
-const SettingsModal = ({ onClose }) => {
-  const [email, setEmail] = useState("");
-  const [role, setRole] = useState("User");
+const UserManagementModal = ({ onClose }) => {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [view, setView] = useState("list"); // 'list' or 'create'
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "USER",
+  });
   const [status, setStatus] = useState({ message: "", type: "" });
 
-  const handleInvite = (e) => {
-    e.preventDefault();
-    if (!email) {
-      setStatus({ message: "Email is required.", type: "error" });
-      return;
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchUsers();
+      setUsers(data);
+    } catch (error) {
+      setStatus({ message: "Failed to load users.", type: "error" });
+    } finally {
+      setLoading(false);
     }
-    setStatus({
-      message:
-        "User invitation is currently done via Supabase Dashboard. Go to Authentication > Users to add new users with the appropriate role.",
-      type: "error",
-    });
-    setTimeout(() => setStatus({ message: "", type: "" }), 5000);
+  };
+
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    try {
+      await createUser(formData);
+      setStatus({ message: "User created successfully!", type: "success" });
+      setFormData({ name: "", email: "", password: "", role: "USER" });
+      setView("list");
+      loadUsers();
+    } catch (error) {
+      setStatus({
+        message: error.message || "Failed to create user.",
+        type: "error",
+      });
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    try {
+      await deleteUser(userId);
+      setStatus({ message: "User deleted successfully!", type: "success" });
+      loadUsers();
+    } catch (error) {
+      setStatus({ message: "Failed to delete user.", type: "error" });
+    }
+  };
+
+  const handleChangeRole = async (userId, currentRole) => {
+    const newRole = currentRole === "ADMIN" ? "USER" : "ADMIN";
+    try {
+      await updateUserRole(userId, newRole);
+      setStatus({ message: "User role updated!", type: "success" });
+      loadUsers();
+    } catch (error) {
+      setStatus({ message: "Failed to update role.", type: "error" });
+    }
   };
 
   return (
@@ -42,7 +97,7 @@ const SettingsModal = ({ onClose }) => {
       style={{ backgroundColor: "rgba(0, 0, 0, 0.32)" }}
     >
       <div
-        className="w-full max-w-lg overflow-hidden animate-fade-in"
+        className="w-full max-w-2xl overflow-hidden animate-fade-in"
         style={{
           backgroundColor: "#ffffff",
           borderRadius: "28px",
@@ -65,160 +120,175 @@ const SettingsModal = ({ onClose }) => {
             >
               <UserPlusIcon className="w-5 h-5" style={{ color: "#1a73e8" }} />
             </div>
-            Manage Users & Access
+            {view === "list" ? "Manage Users" : "Create New User"}
           </h3>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-full transition-all duration-200 hover:bg-gray-100"
-            style={{ color: "#5f6368" }}
-          >
-            <XMarkIcon className="w-5 h-5" />
-          </button>
+          <div className="flex gap-2">
+            {view === "list" && (
+              <button
+                onClick={() => setView("create")}
+                className="px-4 py-2 text-sm font-medium transition-all duration-200"
+                style={{
+                  backgroundColor: "#1a73e8",
+                  color: "#ffffff",
+                  borderRadius: "9999px",
+                }}
+              >
+                + Add User
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="p-2 rounded-full transition-all duration-200 hover:bg-gray-100"
+              style={{ color: "#5f6368" }}
+            >
+              <XMarkIcon className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
-        {/* Form Body */}
-        <form className="p-6 space-y-6" onSubmit={handleInvite}>
-          {/* Status Message */}
+        {/* Body */}
+        <div className="p-6 max-h-[60vh] overflow-y-auto">
           {status.message && (
             <div
-              className="p-4 rounded-xl text-sm font-medium"
+              className="mb-4 p-4 rounded-xl text-sm font-medium flex justify-between items-center"
               style={{
                 backgroundColor:
                   status.type === "success" ? "#e6f4ea" : "#fce8e6",
                 color: status.type === "success" ? "#1e8e3e" : "#d93025",
               }}
             >
-              {status.message}
+              <span>{status.message}</span>
+              <button
+                onClick={() => setStatus({ message: "", type: "" })}
+                className="text-lg"
+              >
+                &times;
+              </button>
             </div>
           )}
 
-          {/* Email Input */}
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium mb-2"
-              style={{ color: "#202124" }}
-            >
-              User Email (for Invitation)
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full h-12 px-4 text-base transition duration-200"
-              style={{
-                border: "1px solid #dadce0",
-                borderRadius: "8px",
-                color: "#202124",
-              }}
-              placeholder="user@newcompany.com"
-            />
-          </div>
-
-          {/* Role Selection */}
-          <div>
-            <label
-              className="block text-sm font-medium mb-3"
-              style={{ color: "#202124" }}
-            >
-              Assign Role
-            </label>
-            <div className="flex gap-4">
-              {/* Admin Role */}
-              <label
-                className="flex items-center p-4 cursor-pointer w-1/2 transition-all duration-200"
-                style={{
-                  backgroundColor: role === "Admin" ? "#e8f0fe" : "#ffffff",
-                  border:
-                    role === "Admin"
-                      ? "2px solid #1a73e8"
-                      : "1px solid #dadce0",
-                  borderRadius: "16px",
-                }}
-              >
-                <input
-                  type="radio"
-                  name="userRole"
-                  value="Admin"
-                  checked={role === "Admin"}
-                  onChange={() => setRole("Admin")}
-                  className="form-radio h-4 w-4"
-                  style={{ accentColor: "#1a73e8" }}
-                />
-                <div className="ml-3">
-                  <p
-                    className="text-sm font-medium"
-                    style={{ color: "#202124" }}
+          {view === "list" ? (
+            loading ? (
+              <div className="flex justify-center p-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {users.map((user) => (
+                  <div
+                    key={user.id}
+                    className="flex items-center justify-between p-4 rounded-2xl transition-all hover:bg-gray-50 border border-gray-100"
                   >
-                    Admin
-                  </p>
-                  <p className="text-xs" style={{ color: "#5f6368" }}>
-                    Full access & configuration
-                  </p>
-                </div>
-              </label>
-
-              {/* Staff Role */}
-              <label
-                className="flex items-center p-4 cursor-pointer w-1/2 transition-all duration-200"
-                style={{
-                  backgroundColor: role === "User" ? "#e8f0fe" : "#ffffff",
-                  border:
-                    role === "User" ? "2px solid #1a73e8" : "1px solid #dadce0",
-                  borderRadius: "16px",
-                }}
-              >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                        <UserIcon className="w-5 h-5 text-gray-500" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">{user.name}</p>
+                        <p className="text-sm text-gray-500">{user.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span
+                        className="text-xs font-semibold px-2.5 py-1 rounded-full cursor-pointer hover:opacity-80 transition-all"
+                        onClick={() => handleChangeRole(user.id, user.role)}
+                        style={{
+                          backgroundColor:
+                            user.role === "ADMIN" ? "#fce8e6" : "#e8f0fe",
+                          color: user.role === "ADMIN" ? "#d93025" : "#1a73e8",
+                        }}
+                        title="Click to toggle role"
+                      >
+                        {user.role}
+                      </span>
+                      <button
+                        onClick={() => handleDeleteUser(user.id)}
+                        className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                      >
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
+          ) : (
+            <form onSubmit={handleCreateUser} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name
+                </label>
                 <input
-                  type="radio"
-                  name="userRole"
-                  value="User"
-                  checked={role === "User"}
-                  onChange={() => setRole("User")}
-                  className="form-radio h-4 w-4"
-                  style={{ accentColor: "#1a73e8" }}
+                  type="text"
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                 />
-                <div className="ml-3">
-                  <p
-                    className="text-sm font-medium"
-                    style={{ color: "#202124" }}
-                  >
-                    Staff
-                  </p>
-                  <p className="text-xs" style={{ color: "#5f6368" }}>
-                    Sales, Purchase & time tracking
-                  </p>
-                </div>
-              </label>
-            </div>
-          </div>
-
-          {/* Footer / Submit */}
-          <div className="flex justify-end pt-4 gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="py-3 px-6 text-sm font-medium transition-all duration-200 hover:bg-gray-100"
-              style={{
-                color: "#1a73e8",
-                borderRadius: "9999px",
-              }}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="py-3 px-6 text-sm font-medium text-white transition-all duration-200"
-              style={{
-                backgroundColor: "#1a73e8",
-                borderRadius: "9999px",
-              }}
-            >
-              Invite User
-            </button>
-          </div>
-        </form>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Role
+                </label>
+                <select
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  value={formData.role}
+                  onChange={(e) =>
+                    setFormData({ ...formData, role: e.target.value })
+                  }
+                >
+                  <option value="USER">User</option>
+                  <option value="ADMIN">Admin</option>
+                </select>
+              </div>
+              <div className="flex justify-end gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setView("list")}
+                  className="px-6 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-full"
+                >
+                  Back to List
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-full"
+                >
+                  Create User
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -255,12 +325,12 @@ const ProfilePopup = ({ role, onLogout }) => (
         <span
           className="text-xs font-medium px-2 py-0.5 mt-1 inline-block"
           style={{
-            backgroundColor: role === "Admin" ? "#fce8e6" : "#e6f4ea",
-            color: role === "Admin" ? "#d93025" : "#1e8e3e",
+            backgroundColor: role === "ADMIN" ? "#fce8e6" : "#e6f4ea",
+            color: role === "ADMIN" ? "#d93025" : "#1e8e3e",
             borderRadius: "9999px",
           }}
         >
-          {role || "Staff"}
+          {role || "USER"}
         </span>
       </div>
     </div>
@@ -364,17 +434,17 @@ const Header = ({ onMenuClick, onSettingsClick }) => {
           <QuestionMarkCircleIcon className="w-5 h-5" />
         </button>
 
-        {/* Settings */}
-        <button
-          onClick={onSettingsClick}
-          disabled={userRole !== "Admin"}
-          className={`p-2 rounded-full transition-all duration-200 ${
-            userRole === "Admin" ? "hover:bg-gray-100" : "cursor-not-allowed"
-          }`}
-          style={{ color: userRole === "Admin" ? "#5f6368" : "#9aa0a6" }}
-        >
-          <Cog8ToothIcon className="w-5 h-5" />
-        </button>
+        {/* User Management (Admin Only) */}
+        {userRole === "ADMIN" && (
+          <button
+            onClick={onSettingsClick}
+            className="p-2 rounded-full transition-all duration-200 hover:bg-gray-100"
+            style={{ color: "#5f6368" }}
+            title="Manage Users"
+          >
+            <PlusIcon className="w-5 h-5" />
+          </button>
+        )}
 
         {/* User Avatar */}
         <div className="relative">
@@ -409,10 +479,8 @@ const DashboardLayout = () => {
   };
 
   const handleSettingsClick = () => {
-    if (userRole === "Admin") {
+    if (userRole === "ADMIN") {
       setIsSettingsModalOpen(true);
-    } else {
-      alert("Access Denied: Only Administrators can manage users.");
     }
   };
 
@@ -430,9 +498,9 @@ const DashboardLayout = () => {
         />
       )}
 
-      {/* Settings Modal */}
-      {isSettingsModalOpen && userRole === "Admin" && (
-        <SettingsModal onClose={() => setIsSettingsModalOpen(false)} />
+      {/* User Management Modal */}
+      {isSettingsModalOpen && userRole === "ADMIN" && (
+        <UserManagementModal onClose={() => setIsSettingsModalOpen(false)} />
       )}
 
       {/* Main Content Container */}
