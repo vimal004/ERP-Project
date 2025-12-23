@@ -1,4 +1,4 @@
-import { getAuthHeader } from "./authService";
+import { getAuthHeaders } from "./authService";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
@@ -6,7 +6,7 @@ export const recurringInvoicesService = {
   async getAll(page = 0, size = 10, sortBy = "createdAt", sortDir = "desc") {
     const response = await fetch(
       `${API_URL}/api/recurring-invoices?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`,
-      { headers: { ...getAuthHeader(), "Content-Type": "application/json" } }
+      { headers: { ...getAuthHeaders(), "Content-Type": "application/json" } }
     );
     if (!response.ok) throw new Error("Failed to fetch recurring invoices");
     return response.json();
@@ -14,7 +14,7 @@ export const recurringInvoicesService = {
 
   async getById(id) {
     const response = await fetch(`${API_URL}/api/recurring-invoices/${id}`, {
-      headers: { ...getAuthHeader(), "Content-Type": "application/json" },
+      headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
     });
     if (!response.ok) throw new Error("Failed to fetch recurring invoice");
     return response.json();
@@ -23,7 +23,7 @@ export const recurringInvoicesService = {
   async create(invoiceData) {
     const response = await fetch(`${API_URL}/api/recurring-invoices`, {
       method: "POST",
-      headers: { ...getAuthHeader(), "Content-Type": "application/json" },
+      headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
       body: JSON.stringify(invoiceData),
     });
     if (!response.ok) throw new Error("Failed to create recurring invoice");
@@ -33,7 +33,7 @@ export const recurringInvoicesService = {
   async update(id, invoiceData) {
     const response = await fetch(`${API_URL}/api/recurring-invoices/${id}`, {
       method: "PUT",
-      headers: { ...getAuthHeader(), "Content-Type": "application/json" },
+      headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
       body: JSON.stringify(invoiceData),
     });
     if (!response.ok) throw new Error("Failed to update recurring invoice");
@@ -43,7 +43,7 @@ export const recurringInvoicesService = {
   async delete(id) {
     const response = await fetch(`${API_URL}/api/recurring-invoices/${id}`, {
       method: "DELETE",
-      headers: { ...getAuthHeader(), "Content-Type": "application/json" },
+      headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
     });
     if (!response.ok) throw new Error("Failed to delete recurring invoice");
     return response.json();
@@ -54,7 +54,7 @@ export const recurringInvoicesService = {
       `${API_URL}/api/recurring-invoices/search?term=${encodeURIComponent(
         term
       )}&page=${page}&size=${size}`,
-      { headers: { ...getAuthHeader(), "Content-Type": "application/json" } }
+      { headers: { ...getAuthHeaders(), "Content-Type": "application/json" } }
     );
     if (!response.ok) throw new Error("Failed to search recurring invoices");
     return response.json();
@@ -65,7 +65,7 @@ export const recurringInvoicesService = {
       `${API_URL}/api/recurring-invoices/${id}/pause`,
       {
         method: "POST",
-        headers: { ...getAuthHeader(), "Content-Type": "application/json" },
+        headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
       }
     );
     if (!response.ok) throw new Error("Failed to pause recurring invoice");
@@ -77,7 +77,7 @@ export const recurringInvoicesService = {
       `${API_URL}/api/recurring-invoices/${id}/resume`,
       {
         method: "POST",
-        headers: { ...getAuthHeader(), "Content-Type": "application/json" },
+        headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
       }
     );
     if (!response.ok) throw new Error("Failed to resume recurring invoice");
@@ -88,7 +88,7 @@ export const recurringInvoicesService = {
     const response = await fetch(
       `${API_URL}/api/recurring-invoices/statistics`,
       {
-        headers: { ...getAuthHeader(), "Content-Type": "application/json" },
+        headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
       }
     );
     if (!response.ok)

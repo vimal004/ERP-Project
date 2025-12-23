@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { PlusCircleIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { quotesService } from "../../services/quotesService";
-import { customersService } from "../../services/customersService";
 
 const NewQuotePage = () => {
   const [formData, setFormData] = useState({
