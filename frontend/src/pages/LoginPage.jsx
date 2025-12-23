@@ -240,16 +240,20 @@ const LoginPage = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-[14px] px-[24px] rounded-full text-label-large text-white transition-all duration-200 ease-[cubic-bezier(0.2,0,0,1)] ${
+                style={{
+                  backgroundColor: loading ? "#8ab4f8" : "#1a73e8",
+                  borderRadius: "9999px",
+                }}
+                className={`w-full py-4 px-6 text-white font-medium text-sm transition-all duration-200 ${
                   loading
-                    ? "bg-primary/60 cursor-not-allowed"
-                    : "bg-primary hover:bg-primary-dark hover:shadow-elevation-1 active:scale-[0.98]"
+                    ? "cursor-not-allowed"
+                    : "hover:brightness-90 active:scale-[0.98]"
                 }`}
               >
                 {loading ? (
-                  <span className="flex items-center justify-center gap-[8px]">
+                  <span className="flex items-center justify-center gap-2">
                     <svg
-                      className="animate-spin h-[18px] w-[18px]"
+                      className="animate-spin h-5 w-5"
                       fill="none"
                       viewBox="0 0 24 24"
                     >
