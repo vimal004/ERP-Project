@@ -34,6 +34,8 @@ const CustomersPage = () => {
   const [selectedCustomers, setSelectedCustomers] = useState([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [activeTab, setActiveTab] = useState("overview");
 
   const fetchCustomers = useCallback(async () => {
     setLoading(true);
@@ -136,6 +138,195 @@ const CustomersPage = () => {
     return styles[status] || styles.ACTIVE;
   };
 
+  const TransactionTab = ({ customer }) => {
+    const sections = [
+      { id: "invoices", label: "Invoices", count: 1 },
+      { id: "payments", label: "Customer Payments", count: 1 },
+      { id: "quotes", label: "Quotes", count: 0 },
+      { id: "orders", label: "Sales Orders", count: 0 },
+      { id: "challans", label: "Delivery Challans", count: 0 },
+    ];
+
+    return (
+      <div className="p-6 space-y-6">
+        {sections.map((section) => (
+          <div
+            key={section.id}
+            className="border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
+          >
+            <div className="bg-gray-50 px-4 py-3 flex justify-between items-center">
+              <span className="font-semibold text-sm text-gray-700">
+                {section.label}
+              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-gray-400">
+                  Total Count: {section.count}
+                </span>
+                <Link
+                  to={`/sales/${section.id}/new`}
+                  className="text-white text-xs font-semibold px-3 py-1 bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  + New
+                </Link>
+              </div>
+            </div>
+            {section.count > 0 && section.id === "invoices" && (
+              <div className="p-0 overflow-x-auto">
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-white text-gray-400 border-b border-gray-100">
+                    <tr>
+                      <th className="px-4 py-2 font-medium">DATE</th>
+                      <th className="px-4 py-2 font-medium">INVOICE#</th>
+                      <th className="px-4 py-2 font-medium text-right">
+                        AMOUNT
+                      </th>
+                      <th className="px-4 py-2 font-medium">STATUS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="hover:bg-gray-50 border-b border-gray-50 last:border-0">
+                      <td className="px-4 py-3">22/11/2025</td>
+                      <td className="px-4 py-3 text-blue-600 font-semibold cursor-pointer">
+                        INV-000001
+                      </td>
+                      <td className="px-4 py-3 text-right">₹10.00</td>
+                      <td className="px-4 py-3">
+                        <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
+                          Paid
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const CustomerTableView = () => (
+    <div
+      className="p-6 min-h-[70vh]"
+      style={{
+        backgroundColor: "#ffffff",
+        borderRadius: "24px",
+        boxShadow:
+          "0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15)",
+      }}
+    >
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 space-y-3 md:space-y-0">
+        <div className="text-sm" style={{ color: "#5f6368" }}>
+          {totalElements > 0 &&
+            `Showing ${customers.length} of ${totalElements} customers`}
+        </div>
+        <div className="relative w-full md:w-auto">
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search customer name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full md:w-64 pl-10 pr-4 py-2.5 text-sm transition-all duration-200"
+            style={{
+              backgroundColor: "#f1f3f4",
+              border: "none",
+              borderRadius: "8px",
+              color: "#202124",
+            }}
+          />
+        </div>
+      </div>
+
+      <div
+        className="overflow-x-auto"
+        style={{ borderTop: "1px solid #e8eaed" }}
+      >
+        <div
+          className="flex items-center py-4 text-xs font-bold uppercase tracking-wider min-w-[900px]"
+          style={{ color: "#5f6368", borderBottom: "1px solid #e8eaed" }}
+        >
+          <input
+            type="checkbox"
+            className="mr-4"
+            style={{ accentColor: "#1a73e8" }}
+            checked={
+              selectedCustomers.length === customers.length &&
+              customers.length > 0
+            }
+            onChange={handleSelectAll}
+          />
+          <span
+            className="w-[22%] px-4 cursor-pointer hover:text-blue-600 transition-colors duration-200"
+            onClick={() => handleSort("displayName")}
+          >
+            Name {sortBy === "displayName" && (sortDir === "asc" ? "↑" : "↓")}
+          </span>
+          <span className="w-[18%] px-4">Company Name</span>
+          <span className="w-[18%] px-4">Email</span>
+          <span className="w-[12%] px-4">Work Phone</span>
+          <span
+            className="w-[15%] px-4 cursor-pointer hover:text-blue-600 transition-colors duration-200"
+            onClick={() => handleSort("receivablesBalance")}
+          >
+            Receivables{" "}
+            {sortBy === "receivablesBalance" && (sortDir === "asc" ? "↑" : "↓")}
+          </span>
+          <span className="w-[10%] px-4 text-right">Actions</span>
+        </div>
+
+        {customers.map((customer) => (
+          <div
+            key={customer.id}
+            onClick={() => setSelectedCustomer(customer)}
+            className="flex items-center py-4 text-sm min-w-[900px] transition-all duration-200 hover:bg-gray-50 cursor-pointer"
+            style={{ color: "#202124", borderBottom: "1px solid #e8eaed" }}
+          >
+            <input
+              type="checkbox"
+              className="mr-4"
+              style={{ accentColor: "#1a73e8" }}
+              checked={selectedCustomers.includes(customer.id)}
+              onChange={(e) => {
+                e.stopPropagation();
+                handleSelect(customer.id);
+              }}
+            />
+            <span className="w-[22%] px-4 font-semibold text-blue-600 hover:underline">
+              {customer.displayName}
+            </span>
+            <span className="w-[18%] px-4 text-gray-600 uppercase text-xs font-semibold">
+              {customer.companyName || "-"}
+            </span>
+            <span className="w-[18%] px-4 truncate text-gray-500">
+              {customer.email || "-"}
+            </span>
+            <span className="w-[12%] px-4 text-gray-500">
+              {customer.workPhone || "-"}
+            </span>
+            <span className="w-[15%] px-4 font-bold text-gray-900">
+              {formatCurrency(customer.receivablesBalance, customer.currency)}
+            </span>
+            <span className="w-[10%] px-4 text-right">
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteClick(customer);
+                  }}
+                  className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                >
+                  <TrashIcon className="w-4 h-4" />
+                </button>
+              </div>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div className="p-6 sm:p-8">
       {/* Header */}
@@ -180,266 +371,277 @@ const CustomersPage = () => {
         </div>
       </div>
 
-      {/* Content Card */}
-      <div
-        className="p-6 min-h-[70vh]"
-        style={{
-          backgroundColor: "#ffffff",
-          borderRadius: "24px",
-          boxShadow:
-            "0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15)",
-        }}
-      >
-        {/* Search and filter row */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 space-y-3 md:space-y-0">
-          <div className="text-sm" style={{ color: "#5f6368" }}>
-            {totalElements > 0 &&
-              `Showing ${customers.length} of ${totalElements} customers`}
-          </div>
-          <div className="relative w-full md:w-auto">
-            <MagnifyingGlassIcon
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5"
-              style={{ color: "#80868b" }}
-            />
-            <input
-              type="text"
-              placeholder="Search customer name..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full md:w-64 pl-10 pr-4 py-2.5 text-sm transition-all duration-200"
-              style={{
-                backgroundColor: "#f1f3f4",
-                border: "none",
-                borderRadius: "8px",
-                color: "#202124",
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Error message */}
-        {error && (
+      {/* Conditional Rendering: Table View or Split View */}
+      {!selectedCustomer ? (
+        <CustomerTableView />
+      ) : (
+        <div className="flex gap-6 h-[80vh]">
+          {/* Narrow Left List */}
           <div
-            className="px-4 py-3 mb-4 flex items-center text-sm"
+            className="w-1/3 transition-all duration-300 flex flex-col"
             style={{
-              backgroundColor: "#fce8e6",
-              color: "#d93025",
-              borderRadius: "12px",
+              backgroundColor: "#ffffff",
+              borderRadius: "24px",
+              boxShadow:
+                "0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15)",
+              overflow: "hidden",
             }}
           >
-            <ExclamationTriangleIcon className="w-5 h-5 mr-2" />
-            {error}
-          </div>
-        )}
-
-        {/* Loading state */}
-        {loading ? (
-          <div className="flex justify-center items-center py-20">
-            <div
-              className="animate-spin rounded-full h-8 w-8 border-2"
-              style={{ borderColor: "#e8eaed", borderTopColor: "#1a73e8" }}
-            />
-          </div>
-        ) : customers.length === 0 ? (
-          /* Empty State */
-          <div
-            className="flex flex-col items-center justify-center pt-20"
-            style={{ minHeight: "40vh" }}
-          >
-            <div
-              className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
-              style={{ backgroundColor: "#e8f0fe" }}
-            >
-              <UserGroupIcon
-                className="w-10 h-10"
-                style={{ color: "#1a73e8" }}
-              />
+            <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+              <div className="relative flex-1">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-100 outline-none"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
             </div>
-            <p
-              className="text-xl font-medium mb-2"
-              style={{ color: "#202124" }}
-            >
-              No Customers Found
-            </p>
-            <p
-              className="text-sm text-center max-w-sm"
-              style={{ color: "#5f6368" }}
-            >
-              {searchTerm
-                ? "No customers match your search criteria."
-                : "Your customer contact list is currently empty. Click 'New Customer' to add one."}
-            </p>
+
+            <div className="flex-1 overflow-y-auto">
+              <div className="divide-y divide-gray-100">
+                {customers.map((customer) => (
+                  <div
+                    key={customer.id}
+                    onClick={() => setSelectedCustomer(customer)}
+                    className={`p-4 cursor-pointer transition-all duration-150 relative border-l-4 ${
+                      selectedCustomer?.id === customer.id
+                        ? "bg-blue-50 border-blue-600 shadow-sm"
+                        : "hover:bg-gray-50 border-transparent opacity-70"
+                    }`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1 min-w-0">
+                        <h4
+                          className={`font-semibold truncate ${
+                            selectedCustomer?.id === customer.id
+                              ? "text-blue-700"
+                              : "text-gray-900"
+                          }`}
+                        >
+                          {customer.displayName}
+                        </h4>
+                        <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-wider">
+                          {customer.companyName || "No Company"}
+                        </p>
+                      </div>
+                      <div className="text-right ml-2 flex-shrink-0">
+                        <p className="text-xs font-bold text-gray-700">
+                          {formatCurrency(
+                            customer.receivablesBalance,
+                            customer.currency
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        ) : (
-          /* Table */
+
+          {/* Expanded Right Details */}
           <div
-            className="overflow-x-auto"
-            style={{ borderTop: "1px solid #e8eaed" }}
+            className="flex-1 flex flex-col transition-all duration-300"
+            style={{
+              backgroundColor: "#ffffff",
+              borderRadius: "24px",
+              boxShadow:
+                "0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15)",
+              overflow: "hidden",
+            }}
           >
-            {/* Table Header */}
-            <div
-              className="flex items-center py-4 text-xs font-medium uppercase tracking-wide min-w-[900px]"
-              style={{
-                color: "#5f6368",
-                borderBottom: "1px solid #e8eaed",
-              }}
-            >
-              <input
-                type="checkbox"
-                className="mr-4"
-                style={{ accentColor: "#1a73e8" }}
-                checked={
-                  selectedCustomers.length === customers.length &&
-                  customers.length > 0
-                }
-                onChange={handleSelectAll}
-              />
-              <span
-                className="w-[22%] px-4 cursor-pointer hover:text-blue-600 transition-colors duration-200"
-                onClick={() => handleSort("displayName")}
-              >
-                Name{" "}
-                {sortBy === "displayName" && (sortDir === "asc" ? "↑" : "↓")}
-              </span>
-              <span className="w-[18%] px-4">Email</span>
-              <span className="w-[12%] px-4">Phone</span>
-              <span
-                className="w-[15%] px-4 cursor-pointer hover:text-blue-600 transition-colors duration-200"
-                onClick={() => handleSort("receivablesBalance")}
-              >
-                Receivables{" "}
-                {sortBy === "receivablesBalance" &&
-                  (sortDir === "asc" ? "↑" : "↓")}
-              </span>
-              <span className="w-[13%] px-4">Last Contact</span>
-              <span className="w-[10%] px-4">Status</span>
-              {isAdmin() && (
-                <span className="w-[10%] px-4 text-right">Actions</span>
+            {/* Header */}
+            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                  {selectedCustomer.displayName?.[0]?.toUpperCase()}
+                </div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  {selectedCustomer.displayName}
+                </h2>
+              </div>
+              <div className="flex items-center gap-3">
+                <Link
+                  to={`/sales/customers/edit/${selectedCustomer.id}`}
+                  className="px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Edit
+                </Link>
+                <button
+                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all"
+                  onClick={() => setSelectedCustomer(null)}
+                >
+                  <XMarkIcon className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            {/* Tab Bar */}
+            <div className="px-6 border-b border-gray-100 flex gap-8 bg-white overflow-x-auto">
+              {[
+                "overview",
+                "comments",
+                "transactions",
+                "mails",
+                "statement",
+              ].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`py-4 text-xs font-bold uppercase tracking-widest border-b-2 transition-all duration-200 whitespace-nowrap ${
+                    activeTab === tab
+                      ? "border-blue-600 text-blue-600"
+                      : "border-transparent text-gray-400 hover:text-gray-600"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            {/* Scrollable Content Area */}
+            <div className="flex-1 overflow-y-auto bg-gray-50/30">
+              {activeTab === "overview" && (
+                <div className="p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                    {/* Main Info */}
+                    <div className="xl:col-span-2 space-y-8">
+                      <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                        <div className="flex items-center justify-between mb-6">
+                          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                            General Information
+                          </h4>
+                        </div>
+                        <div className="grid grid-cols-2 gap-y-6 gap-x-12">
+                          <div>
+                            <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">
+                              Email
+                            </p>
+                            <p className="text-sm font-medium text-blue-600">
+                              {selectedCustomer.email || "N/A"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">
+                              Work Phone
+                            </p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {selectedCustomer.workPhone || "N/A"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">
+                              Currency
+                            </p>
+                            <p className="text-sm font-medium text-gray-900 font-mono tracking-tighter">
+                              {selectedCustomer.currency || "INR"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Addresses */}
+                      <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 border-b border-gray-50 pb-4">
+                          Addresses
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                          <div className="relative">
+                            <div className="absolute -left-3 top-0 w-1 h-6 bg-blue-500 rounded-full" />
+                            <p className="text-[10px] text-gray-400 font-bold uppercase mb-3 px-2">
+                              Billing Address
+                            </p>
+                            <p className="text-sm text-gray-600 leading-relaxed px-2">
+                              {selectedCustomer.billingAddress ||
+                                "Not specified"}
+                            </p>
+                          </div>
+                          <div className="relative">
+                            <div className="absolute -left-3 top-0 w-1 h-6 bg-green-500 rounded-full" />
+                            <p className="text-[10px] text-gray-400 font-bold uppercase mb-3 px-2">
+                              Shipping Address
+                            </p>
+                            <p className="text-sm text-gray-600 leading-relaxed px-2">
+                              {selectedCustomer.shippingAddress ||
+                                "Not specified"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Financial Side Panel */}
+                    <div className="space-y-6">
+                      <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">
+                          Financial Overview
+                        </h4>
+                        <div className="space-y-6">
+                          <div className="p-4 bg-red-50 rounded-xl border border-red-100">
+                            <p className="text-[10px] text-red-400 font-bold uppercase mb-1">
+                              Receivables
+                            </p>
+                            <p className="text-2xl font-black text-red-600">
+                              {formatCurrency(
+                                selectedCustomer.receivablesBalance,
+                                selectedCustomer.currency
+                              )}
+                            </p>
+                          </div>
+                          <div className="p-4 bg-green-50 rounded-xl border border-green-100">
+                            <p className="text-[10px] text-green-400 font-bold uppercase mb-1">
+                              Unused Credits
+                            </p>
+                            <p className="text-2xl font-black text-green-600">
+                              ₹0.00
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-blue-600 p-6 rounded-2xl shadow-lg shadow-blue-200">
+                        <p className="text-xs text-blue-100 font-bold uppercase tracking-widest mb-2">
+                          Total Income
+                        </p>
+                        <p className="text-3xl font-black text-white mb-4">
+                          ₹10.00
+                        </p>
+                        <div className="h-1 bg-blue-400 rounded-full overflow-hidden">
+                          <div className="w-[10%] h-full bg-white shadow-[0_0_10px_white]" />
+                        </div>
+                        <p className="text-[10px] text-blue-100 mt-2 font-medium">
+                          10% increase from last month
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "transactions" && (
+                <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                  <TransactionTab customer={selectedCustomer} />
+                </div>
+              )}
+
+              {["comments", "mails", "statement"].includes(activeTab) && (
+                <div className="flex flex-col items-center justify-center p-20 text-gray-400 animate-in zoom-in-95 duration-200">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                    <ArrowPathIcon className="w-8 h-8 opacity-20" />
+                  </div>
+                  <p className="text-sm font-medium italic">
+                    The {activeTab} history is currently empty for this
+                    customer.
+                  </p>
+                </div>
               )}
             </div>
-
-            {/* Table Rows */}
-            {customers.map((customer) => (
-              <div
-                key={customer.id}
-                className="flex items-center py-4 text-sm min-w-[900px] transition-all duration-200 hover:bg-gray-50"
-                style={{
-                  color: "#202124",
-                  borderBottom: "1px solid #e8eaed",
-                }}
-              >
-                <input
-                  type="checkbox"
-                  className="mr-4"
-                  style={{ accentColor: "#1a73e8" }}
-                  checked={selectedCustomers.includes(customer.id)}
-                  onChange={() => handleSelect(customer.id)}
-                />
-                <span className="w-[22%] px-4 font-medium truncate">
-                  {customer.displayName}
-                  {customer.companyName && (
-                    <span
-                      className="text-xs block"
-                      style={{ color: "#5f6368" }}
-                    >
-                      {customer.companyName}
-                    </span>
-                  )}
-                </span>
-                <span
-                  className="w-[18%] px-4 truncate"
-                  style={{ color: "#5f6368" }}
-                >
-                  {customer.email || "-"}
-                </span>
-                <span className="w-[12%] px-4" style={{ color: "#5f6368" }}>
-                  {customer.mobilePhone || customer.workPhone || "-"}
-                </span>
-                <span className="w-[15%] px-4 font-medium">
-                  {formatCurrency(
-                    customer.receivablesBalance,
-                    customer.currency
-                  )}
-                </span>
-                <span className="w-[13%] px-4" style={{ color: "#5f6368" }}>
-                  {formatDate(customer.lastContactAt)}
-                </span>
-                <span className="w-[10%] px-4">
-                  <span
-                    className="px-3 py-1 text-xs font-medium"
-                    style={{
-                      backgroundColor: getStatusBadge(customer.status).bg,
-                      color: getStatusBadge(customer.status).color,
-                      borderRadius: "9999px",
-                    }}
-                  >
-                    {customer.status || "ACTIVE"}
-                  </span>
-                </span>
-                {isAdmin() && (
-                  <span className="w-[10%] px-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link
-                        to={`/sales/customers/edit/${customer.id}`}
-                        className="p-2 rounded-full transition-all duration-200 hover:bg-blue-50"
-                        style={{ color: "#1a73e8" }}
-                        title="Edit"
-                      >
-                        <PencilIcon className="w-4 h-4" />
-                      </Link>
-                      <button
-                        onClick={() => handleDeleteClick(customer)}
-                        className="p-2 rounded-full transition-all duration-200 hover:bg-red-50"
-                        style={{ color: "#d93025" }}
-                        title="Delete"
-                      >
-                        <TrashIcon className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </span>
-                )}
-              </div>
-            ))}
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between py-4 px-2">
-                <div className="text-sm" style={{ color: "#5f6368" }}>
-                  Page {currentPage + 1} of {totalPages}
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
-                    disabled={currentPage === 0}
-                    className="px-4 py-2 text-sm font-medium transition-all duration-200 disabled:opacity-50"
-                    style={{
-                      color: "#1a73e8",
-                      border: "1px solid #dadce0",
-                      borderRadius: "9999px",
-                    }}
-                  >
-                    Previous
-                  </button>
-                  <button
-                    onClick={() =>
-                      setCurrentPage(Math.min(totalPages - 1, currentPage + 1))
-                    }
-                    disabled={currentPage >= totalPages - 1}
-                    className="px-4 py-2 text-sm font-medium transition-all duration-200 disabled:opacity-50"
-                    style={{
-                      color: "#1a73e8",
-                      border: "1px solid #dadce0",
-                      borderRadius: "9999px",
-                    }}
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal - MD3 Style */}
       {deleteModalOpen && (
