@@ -208,7 +208,7 @@ const CustomersPage = () => {
 
   const CustomerTableView = () => (
     <div
-      className="p-6 min-h-[70vh]"
+      className="p-4 sm:p-6 min-h-[70vh]"
       style={{
         backgroundColor: "#ffffff",
         borderRadius: "24px",
@@ -239,8 +239,67 @@ const CustomersPage = () => {
         </div>
       </div>
 
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-3">
+        {customers.map((customer) => (
+          <div
+            key={customer.id}
+            onClick={() => setSelectedCustomer(customer)}
+            className="p-4 rounded-2xl border border-gray-100 transition-all duration-200 active:scale-[0.98] cursor-pointer"
+            style={{ backgroundColor: "#ffffff" }}
+          >
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex-1 min-w-0 mr-3">
+                <h3 className="font-semibold text-blue-600 truncate">
+                  {customer.displayName}
+                </h3>
+                {customer.companyName && (
+                  <p className="text-xs text-gray-500 uppercase font-medium mt-0.5 truncate">
+                    {customer.companyName}
+                  </p>
+                )}
+              </div>
+              <div className="text-right flex-shrink-0">
+                <p className="font-bold text-gray-900 text-sm">
+                  {formatCurrency(
+                    customer.receivablesBalance,
+                    customer.currency
+                  )}
+                </p>
+                <p className="text-xs text-gray-400">Receivables</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-3 text-xs text-gray-500">
+              {customer.email && (
+                <span className="truncate max-w-[150px]">{customer.email}</span>
+              )}
+              {customer.workPhone && <span>{customer.workPhone}</span>}
+            </div>
+            <div className="flex justify-end gap-2 mt-3 pt-3 border-t border-gray-100">
+              <Link
+                to={`/sales/customers/edit/${customer.id}`}
+                onClick={(e) => e.stopPropagation()}
+                className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+              >
+                <PencilIcon className="w-4 h-4" />
+              </Link>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteClick(customer);
+                }}
+                className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+              >
+                <TrashIcon className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop Table View */}
       <div
-        className="overflow-x-auto"
+        className="hidden md:block overflow-x-auto"
         style={{ borderTop: "1px solid #e8eaed" }}
       >
         <div
@@ -375,10 +434,10 @@ const CustomersPage = () => {
       {!selectedCustomer ? (
         <CustomerTableView />
       ) : (
-        <div className="flex gap-6 h-[80vh]">
-          {/* Narrow Left List */}
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 lg:h-[80vh]">
+          {/* Narrow Left List - Hidden on mobile when customer selected */}
           <div
-            className="w-1/3 transition-all duration-300 flex flex-col"
+            className="hidden lg:flex lg:w-1/3 transition-all duration-300 flex-col"
             style={{
               backgroundColor: "#ffffff",
               borderRadius: "24px",
@@ -442,9 +501,9 @@ const CustomersPage = () => {
             </div>
           </div>
 
-          {/* Expanded Right Details */}
+          {/* Expanded Right Details - Full width on mobile */}
           <div
-            className="flex-1 flex flex-col transition-all duration-300"
+            className="flex-1 flex flex-col transition-all duration-300 max-h-[85vh] lg:max-h-none"
             style={{
               backgroundColor: "#ffffff",
               borderRadius: "24px",
@@ -454,24 +513,36 @@ const CustomersPage = () => {
             }}
           >
             {/* Header */}
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+            <div className="px-4 sm:px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
+              <div className="flex items-center gap-3 min-w-0">
+                <button
+                  className="lg:hidden p-2 -ml-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all"
+                  onClick={() => setSelectedCustomer(null)}
+                >
+                  <ArrowPathIcon className="w-5 h-5 rotate-180" />
+                </button>
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold flex-shrink-0">
                   {selectedCustomer.displayName?.[0]?.toUpperCase()}
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 truncate">
                   {selectedCustomer.displayName}
                 </h2>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                 <Link
                   to={`/sales/customers/edit/${selectedCustomer.id}`}
-                  className="px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="hidden sm:inline-flex px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Edit
                 </Link>
+                <Link
+                  to={`/sales/customers/edit/${selectedCustomer.id}`}
+                  className="sm:hidden p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                >
+                  <PencilIcon className="w-5 h-5" />
+                </Link>
                 <button
-                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all"
+                  className="hidden lg:block p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all"
                   onClick={() => setSelectedCustomer(null)}
                 >
                   <XMarkIcon className="w-6 h-6" />
@@ -505,17 +576,17 @@ const CustomersPage = () => {
             {/* Scrollable Content Area */}
             <div className="flex-1 overflow-y-auto bg-gray-50/30">
               {activeTab === "overview" && (
-                <div className="p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                <div className="p-4 sm:p-8 space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
                     {/* Main Info */}
-                    <div className="xl:col-span-2 space-y-8">
-                      <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                        <div className="flex items-center justify-between mb-6">
+                    <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+                      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
+                        <div className="flex items-center justify-between mb-4 sm:mb-6">
                           <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest">
                             General Information
                           </h4>
                         </div>
-                        <div className="grid grid-cols-2 gap-y-6 gap-x-12">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-y-6 sm:gap-x-12">
                           <div>
                             <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">
                               Email

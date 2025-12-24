@@ -145,7 +145,7 @@ const NewItemPage = () => {
       style={{ backgroundColor: "#f8f9fa", minHeight: "100vh" }}
     >
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
         <div className="flex items-center gap-4">
           <Link
             to="/items"
@@ -161,15 +161,18 @@ const NewItemPage = () => {
             >
               <CubeIcon className="w-5 h-5" style={{ color: "#1a73e8" }} />
             </div>
-            <h1 className="text-2xl font-normal" style={{ color: "#202124" }}>
+            <h1
+              className="text-xl sm:text-2xl font-normal"
+              style={{ color: "#202124" }}
+            >
               {isEditMode ? "Edit Item" : "New Item"}
             </h1>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
           <Link
             to="/items"
-            className="py-3 px-6 text-sm font-medium transition-all duration-200"
+            className="flex-1 sm:flex-initial text-center py-3 px-6 text-sm font-medium transition-all duration-200"
             style={{
               backgroundColor: "#ffffff",
               color: "#5f6368",
@@ -182,7 +185,7 @@ const NewItemPage = () => {
           <button
             onClick={handleSubmit}
             disabled={isSubmitting || success || isLoading}
-            className="py-3 px-6 text-sm font-medium text-white transition-all duration-200 disabled:opacity-50 flex items-center gap-2"
+            className="flex-1 sm:flex-initial py-3 px-6 text-sm font-medium text-white transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
             style={{
               backgroundColor: success ? "#1e8e3e" : "#1a73e8",
               borderRadius: "9999px",
