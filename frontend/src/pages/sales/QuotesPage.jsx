@@ -158,128 +158,229 @@ const QuotesPage = () => {
           className="overflow-x-auto"
           style={{ borderTop: "1px solid #e8eaed" }}
         >
-          {/* Table Header */}
-          <div
-            className="flex items-center py-4 text-xs font-medium uppercase tracking-wide min-w-[900px]"
-            style={{
-              color: "#5f6368",
-              borderBottom: "1px solid #e8eaed",
-            }}
-          >
-            <span
-              className="w-[12%] px-4 cursor-pointer hover:text-blue-600 transition-colors duration-200"
-              onClick={() => {
-                setSortBy("quoteDate");
-                setSortDir(sortDir === "asc" ? "desc" : "asc");
-              }}
-            >
-              Date
-            </span>
-            <span className="w-[12%] px-4">Quote#</span>
-            <span className="w-[12%] px-4">Reference#</span>
-            <span className="w-[22%] px-4">Customer Name</span>
-            <span className="w-[12%] px-4">Status</span>
-            <span className="w-[15%] px-4 text-right">Amount</span>
-            {isAdmin() && (
-              <span className="w-[15%] px-4 text-center">Actions</span>
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-3 pt-4">
+            {loading ? (
+              <div className="flex justify-center items-center py-20">
+                <div
+                  className="animate-spin rounded-full h-8 w-8 border-2"
+                  style={{ borderColor: "#e8eaed", borderTopColor: "#1a73e8" }}
+                />
+              </div>
+            ) : quotes.length === 0 ? (
+              <div
+                className="flex flex-col items-center justify-center pt-16"
+                style={{ minHeight: "40vh" }}
+              >
+                <div
+                  className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+                  style={{ backgroundColor: "#e8f0fe" }}
+                >
+                  <DocumentTextIcon
+                    className="w-8 h-8"
+                    style={{ color: "#1a73e8" }}
+                  />
+                </div>
+                <p
+                  className="text-lg font-medium mb-1"
+                  style={{ color: "#202124" }}
+                >
+                  No Quotes Found
+                </p>
+                <p
+                  className="text-sm text-center px-4"
+                  style={{ color: "#5f6368" }}
+                >
+                  Click 'New Quote' to create one.
+                </p>
+              </div>
+            ) : (
+              quotes.map((quote) => (
+                <div
+                  key={quote.id}
+                  className="p-4 rounded-2xl border border-gray-100 transition-all duration-200 active:scale-[0.98]"
+                  style={{ backgroundColor: "#ffffff" }}
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1 min-w-0 mr-3">
+                      <p
+                        className="font-medium text-sm"
+                        style={{ color: "#1a73e8" }}
+                      >
+                        {quote.quoteNumber}
+                      </p>
+                      <p className="text-base font-medium text-gray-900 truncate mt-0.5">
+                        {quote.customerName}
+                      </p>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="font-bold text-gray-900">
+                        ₹{quote.total?.toLocaleString() || "0.00"}
+                      </p>
+                      <span
+                        className="inline-block px-2 py-0.5 text-xs font-medium mt-1"
+                        style={{
+                          backgroundColor: getStatusBadge(quote.status).bg,
+                          color: getStatusBadge(quote.status).color,
+                          borderRadius: "9999px",
+                        }}
+                      >
+                        {quote.status}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-3 text-xs text-gray-500 mb-3">
+                    <span>Date: {quote.quoteDate}</span>
+                    {quote.reference && <span>Ref: {quote.reference}</span>}
+                  </div>
+                  {isAdmin() && (
+                    <div className="flex justify-end gap-2 pt-3 border-t border-gray-100">
+                      <Link
+                        to={`/sales/quotes/edit/${quote.id}`}
+                        className="p-2 rounded-full transition-all duration-200 hover:bg-blue-50"
+                        style={{ color: "#1a73e8" }}
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(quote.id)}
+                        className="p-2 rounded-full transition-all duration-200 hover:bg-red-50"
+                        style={{ color: "#d93025" }}
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))
             )}
           </div>
 
-          {/* Table Body */}
-          {loading ? (
-            <div className="flex justify-center items-center py-20">
-              <div
-                className="animate-spin rounded-full h-8 w-8 border-2"
-                style={{ borderColor: "#e8eaed", borderTopColor: "#1a73e8" }}
-              />
-            </div>
-          ) : quotes.length === 0 ? (
+          {/* Desktop Table View */}
+          <div className="hidden md:block">
+            {/* Table Header */}
             <div
-              className="flex flex-col items-center justify-center pt-20"
-              style={{ minHeight: "40vh" }}
+              className="flex items-center py-4 text-xs font-medium uppercase tracking-wide min-w-[900px]"
+              style={{
+                color: "#5f6368",
+                borderBottom: "1px solid #e8eaed",
+              }}
             >
-              <div
-                className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
-                style={{ backgroundColor: "#e8f0fe" }}
-              >
-                <DocumentTextIcon
-                  className="w-10 h-10"
-                  style={{ color: "#1a73e8" }}
-                />
-              </div>
-              <p
-                className="text-xl font-medium mb-2"
-                style={{ color: "#202124" }}
-              >
-                No Quotes Found
-              </p>
-              <p
-                className="text-sm text-center max-w-sm"
-                style={{ color: "#5f6368" }}
-              >
-                You haven't created any quotes yet. Click 'New Quote' to create
-                one.
-              </p>
-            </div>
-          ) : (
-            quotes.map((quote) => (
-              <div
-                key={quote.id}
-                className="flex items-center py-4 text-sm min-w-[900px] transition-all duration-200 hover:bg-gray-50"
-                style={{
-                  color: "#202124",
-                  borderBottom: "1px solid #e8eaed",
+              <span
+                className="w-[12%] px-4 cursor-pointer hover:text-blue-600 transition-colors duration-200"
+                onClick={() => {
+                  setSortBy("quoteDate");
+                  setSortDir(sortDir === "asc" ? "desc" : "asc");
                 }}
               >
-                <span className="w-[12%] px-4" style={{ color: "#5f6368" }}>
-                  {quote.quoteDate}
-                </span>
-                <span
-                  className="w-[12%] px-4 font-medium"
-                  style={{ color: "#1a73e8" }}
-                >
-                  {quote.quoteNumber}
-                </span>
-                <span className="w-[12%] px-4" style={{ color: "#5f6368" }}>
-                  {quote.reference || "-"}
-                </span>
-                <span className="w-[22%] px-4">{quote.customerName}</span>
-                <span className="w-[12%] px-4">
-                  <span
-                    className="px-3 py-1 text-xs font-medium"
-                    style={{
-                      backgroundColor: getStatusBadge(quote.status).bg,
-                      color: getStatusBadge(quote.status).color,
-                      borderRadius: "9999px",
-                    }}
-                  >
-                    {quote.status}
-                  </span>
-                </span>
-                <span className="w-[15%] px-4 text-right font-medium">
-                  ₹{quote.total?.toLocaleString() || "0.00"}
-                </span>
-                {isAdmin() && (
-                  <span className="w-[15%] px-4 flex justify-center gap-2">
-                    <Link
-                      to={`/sales/quotes/edit/${quote.id}`}
-                      className="p-2 rounded-full transition-all duration-200 hover:bg-blue-50"
-                      style={{ color: "#1a73e8" }}
-                    >
-                      <PencilIcon className="w-4 h-4" />
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(quote.id)}
-                      className="p-2 rounded-full transition-all duration-200 hover:bg-red-50"
-                      style={{ color: "#d93025" }}
-                    >
-                      <TrashIcon className="w-4 h-4" />
-                    </button>
-                  </span>
-                )}
+                Date
+              </span>
+              <span className="w-[12%] px-4">Quote#</span>
+              <span className="w-[12%] px-4">Reference#</span>
+              <span className="w-[22%] px-4">Customer Name</span>
+              <span className="w-[12%] px-4">Status</span>
+              <span className="w-[15%] px-4 text-right">Amount</span>
+              {isAdmin() && (
+                <span className="w-[15%] px-4 text-center">Actions</span>
+              )}
+            </div>
+
+            {/* Table Body */}
+            {loading ? (
+              <div className="flex justify-center items-center py-20">
+                <div
+                  className="animate-spin rounded-full h-8 w-8 border-2"
+                  style={{ borderColor: "#e8eaed", borderTopColor: "#1a73e8" }}
+                />
               </div>
-            ))
-          )}
+            ) : quotes.length === 0 ? (
+              <div
+                className="flex flex-col items-center justify-center pt-20"
+                style={{ minHeight: "40vh" }}
+              >
+                <div
+                  className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
+                  style={{ backgroundColor: "#e8f0fe" }}
+                >
+                  <DocumentTextIcon
+                    className="w-10 h-10"
+                    style={{ color: "#1a73e8" }}
+                  />
+                </div>
+                <p
+                  className="text-xl font-medium mb-2"
+                  style={{ color: "#202124" }}
+                >
+                  No Quotes Found
+                </p>
+                <p
+                  className="text-sm text-center max-w-sm"
+                  style={{ color: "#5f6368" }}
+                >
+                  You haven't created any quotes yet. Click 'New Quote' to
+                  create one.
+                </p>
+              </div>
+            ) : (
+              quotes.map((quote) => (
+                <div
+                  key={quote.id}
+                  className="flex items-center py-4 text-sm min-w-[900px] transition-all duration-200 hover:bg-gray-50"
+                  style={{
+                    color: "#202124",
+                    borderBottom: "1px solid #e8eaed",
+                  }}
+                >
+                  <span className="w-[12%] px-4" style={{ color: "#5f6368" }}>
+                    {quote.quoteDate}
+                  </span>
+                  <span
+                    className="w-[12%] px-4 font-medium"
+                    style={{ color: "#1a73e8" }}
+                  >
+                    {quote.quoteNumber}
+                  </span>
+                  <span className="w-[12%] px-4" style={{ color: "#5f6368" }}>
+                    {quote.reference || "-"}
+                  </span>
+                  <span className="w-[22%] px-4">{quote.customerName}</span>
+                  <span className="w-[12%] px-4">
+                    <span
+                      className="px-3 py-1 text-xs font-medium"
+                      style={{
+                        backgroundColor: getStatusBadge(quote.status).bg,
+                        color: getStatusBadge(quote.status).color,
+                        borderRadius: "9999px",
+                      }}
+                    >
+                      {quote.status}
+                    </span>
+                  </span>
+                  <span className="w-[15%] px-4 text-right font-medium">
+                    ₹{quote.total?.toLocaleString() || "0.00"}
+                  </span>
+                  {isAdmin() && (
+                    <span className="w-[15%] px-4 flex justify-center gap-2">
+                      <Link
+                        to={`/sales/quotes/edit/${quote.id}`}
+                        className="p-2 rounded-full transition-all duration-200 hover:bg-blue-50"
+                        style={{ color: "#1a73e8" }}
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(quote.id)}
+                        className="p-2 rounded-full transition-all duration-200 hover:bg-red-50"
+                        style={{ color: "#d93025" }}
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </span>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
         </div>
 
         {/* Pagination */}

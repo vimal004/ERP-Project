@@ -227,84 +227,147 @@ const ItemsPage = () => {
             className="overflow-x-auto"
             style={{ borderTop: "1px solid #e8eaed" }}
           >
-            {/* Table Header */}
-            <div
-              className="flex items-center py-4 text-xs font-medium uppercase tracking-wide min-w-[900px]"
-              style={{
-                color: "#5f6368",
-                borderBottom: "1px solid #e8eaed",
-              }}
-            >
-              <span className="w-[20%] px-4">Name</span>
-              <span className="w-[10%] px-4">Type</span>
-              <span className="w-[15%] px-4">Selling Price</span>
-              <span className="w-[15%] px-4">Cost Price</span>
-              <span className="w-[20%] px-4">Description</span>
-              <span className="w-[10%] px-4">Unit</span>
-              {isAdmin() && <span className="w-[10%] px-4">Actions</span>}
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-3 pt-4">
+              {items.map((item) => (
+                <div
+                  key={item.id}
+                  className="p-4 rounded-2xl border border-gray-100 transition-all duration-200 active:scale-[0.98]"
+                  style={{ backgroundColor: "#ffffff" }}
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1 min-w-0 mr-3">
+                      <p className="font-medium text-gray-900">{item.name}</p>
+                      <span
+                        className="inline-block px-2 py-0.5 text-xs font-medium mt-1"
+                        style={{
+                          backgroundColor: getTypeBadge(item.type).bg,
+                          color: getTypeBadge(item.type).color,
+                          borderRadius: "9999px",
+                        }}
+                      >
+                        {item.type}
+                      </span>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="font-bold text-gray-900">
+                        {formatCurrency(item.sellingPrice)}
+                      </p>
+                      <p className="text-xs text-gray-500">Selling Price</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-3 text-xs text-gray-500 mb-3">
+                    <span>Cost: {formatCurrency(item.costPrice)}</span>
+                    {item.unit && <span>Unit: {item.unit}</span>}
+                  </div>
+                  {item.salesDescription && (
+                    <p className="text-xs text-gray-500 truncate mb-3">
+                      {item.salesDescription}
+                    </p>
+                  )}
+                  {isAdmin() && (
+                    <div className="flex justify-end gap-2 pt-3 border-t border-gray-100">
+                      <Link
+                        to={`/items/${item.id}/edit`}
+                        className="p-2 rounded-full transition-all duration-200 hover:bg-blue-50"
+                        style={{ color: "#1a73e8" }}
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(item.id, item.name)}
+                        className="p-2 rounded-full transition-all duration-200 hover:bg-red-50"
+                        style={{ color: "#d93025" }}
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
 
-            {/* Table Rows */}
-            {items.map((item) => (
+            {/* Desktop Table View */}
+            <div className="hidden md:block">
+              {/* Table Header */}
               <div
-                key={item.id}
-                className="flex items-center py-4 text-sm min-w-[900px] transition-all duration-200 hover:bg-gray-50"
+                className="flex items-center py-4 text-xs font-medium uppercase tracking-wide min-w-[900px]"
                 style={{
-                  color: "#202124",
+                  color: "#5f6368",
                   borderBottom: "1px solid #e8eaed",
                 }}
               >
-                <span className="w-[20%] px-4 font-medium">{item.name}</span>
-                <span className="w-[10%] px-4">
-                  <span
-                    className="px-3 py-1 text-xs font-medium"
-                    style={{
-                      backgroundColor: getTypeBadge(item.type).bg,
-                      color: getTypeBadge(item.type).color,
-                      borderRadius: "9999px",
-                    }}
-                  >
-                    {item.type}
-                  </span>
-                </span>
-                <span className="w-[15%] px-4">
-                  {formatCurrency(item.sellingPrice)}
-                </span>
-                <span className="w-[15%] px-4" style={{ color: "#5f6368" }}>
-                  {formatCurrency(item.costPrice)}
-                </span>
-                <span
-                  className="w-[20%] px-4 truncate"
-                  style={{ color: "#5f6368" }}
-                  title={item.salesDescription}
-                >
-                  {item.salesDescription || "-"}
-                </span>
-                <span className="w-[10%] px-4" style={{ color: "#5f6368" }}>
-                  {item.unit || "-"}
-                </span>
-                {isAdmin() && (
-                  <span className="w-[10%] px-4 flex gap-2">
-                    <Link
-                      to={`/items/${item.id}/edit`}
-                      className="p-2 rounded-full transition-all duration-200 hover:bg-blue-50"
-                      style={{ color: "#1a73e8" }}
-                      title="Edit"
-                    >
-                      <PencilIcon className="w-4 h-4" />
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(item.id, item.name)}
-                      className="p-2 rounded-full transition-all duration-200 hover:bg-red-50"
-                      style={{ color: "#d93025" }}
-                      title="Delete"
-                    >
-                      <TrashIcon className="w-4 h-4" />
-                    </button>
-                  </span>
-                )}
+                <span className="w-[20%] px-4">Name</span>
+                <span className="w-[10%] px-4">Type</span>
+                <span className="w-[15%] px-4">Selling Price</span>
+                <span className="w-[15%] px-4">Cost Price</span>
+                <span className="w-[20%] px-4">Description</span>
+                <span className="w-[10%] px-4">Unit</span>
+                {isAdmin() && <span className="w-[10%] px-4">Actions</span>}
               </div>
-            ))}
+
+              {/* Table Rows */}
+              {items.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center py-4 text-sm min-w-[900px] transition-all duration-200 hover:bg-gray-50"
+                  style={{
+                    color: "#202124",
+                    borderBottom: "1px solid #e8eaed",
+                  }}
+                >
+                  <span className="w-[20%] px-4 font-medium">{item.name}</span>
+                  <span className="w-[10%] px-4">
+                    <span
+                      className="px-3 py-1 text-xs font-medium"
+                      style={{
+                        backgroundColor: getTypeBadge(item.type).bg,
+                        color: getTypeBadge(item.type).color,
+                        borderRadius: "9999px",
+                      }}
+                    >
+                      {item.type}
+                    </span>
+                  </span>
+                  <span className="w-[15%] px-4">
+                    {formatCurrency(item.sellingPrice)}
+                  </span>
+                  <span className="w-[15%] px-4" style={{ color: "#5f6368" }}>
+                    {formatCurrency(item.costPrice)}
+                  </span>
+                  <span
+                    className="w-[20%] px-4 truncate"
+                    style={{ color: "#5f6368" }}
+                    title={item.salesDescription}
+                  >
+                    {item.salesDescription || "-"}
+                  </span>
+                  <span className="w-[10%] px-4" style={{ color: "#5f6368" }}>
+                    {item.unit || "-"}
+                  </span>
+                  {isAdmin() && (
+                    <span className="w-[10%] px-4 flex gap-2">
+                      <Link
+                        to={`/items/${item.id}/edit`}
+                        className="p-2 rounded-full transition-all duration-200 hover:bg-blue-50"
+                        style={{ color: "#1a73e8" }}
+                        title="Edit"
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(item.id, item.name)}
+                        className="p-2 rounded-full transition-all duration-200 hover:bg-red-50"
+                        style={{ color: "#d93025" }}
+                        title="Delete"
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

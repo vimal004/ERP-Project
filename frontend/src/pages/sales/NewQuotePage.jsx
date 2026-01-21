@@ -105,7 +105,7 @@ const NewQuotePage = () => {
       style={{ backgroundColor: "#f8f9fa", minHeight: "100vh" }}
     >
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
         <div className="flex items-center gap-4">
           <Link
             to="/sales/quotes"
@@ -124,14 +124,17 @@ const NewQuotePage = () => {
                 style={{ color: "#1a73e8" }}
               />
             </div>
-            <h1 className="text-2xl font-normal" style={{ color: "#202124" }}>
+            <h1
+              className="text-xl sm:text-2xl font-normal"
+              style={{ color: "#202124" }}
+            >
               New Quote
             </h1>
           </div>
         </div>
         <Link
           to="/sales/quotes"
-          className="p-2 rounded-full transition-all duration-200 hover:bg-gray-100"
+          className="hidden sm:block p-2 rounded-full transition-all duration-200 hover:bg-gray-100"
           style={{ color: "#5f6368" }}
         >
           <XMarkIcon className="w-5 h-5" />
@@ -442,9 +445,9 @@ const NewQuotePage = () => {
       </div>
 
       {/* Footer Buttons */}
-      <div className="mt-8 flex justify-start gap-3 pb-8">
+      <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 pb-8">
         <button
-          className="py-3 px-6 text-sm font-medium transition-all duration-200"
+          className="py-3 px-6 text-sm font-medium transition-all duration-200 order-2 sm:order-1"
           style={{
             backgroundColor: "#ffffff",
             color: "#5f6368",
@@ -455,7 +458,7 @@ const NewQuotePage = () => {
           Save as Draft
         </button>
         <button
-          className="py-3 px-6 text-sm font-medium text-white transition-all duration-200"
+          className="py-3 px-6 text-sm font-medium text-white transition-all duration-200 order-1 sm:order-2"
           style={{
             backgroundColor: "#1a73e8",
             borderRadius: "9999px",
@@ -465,7 +468,7 @@ const NewQuotePage = () => {
         </button>
         <Link
           to="/sales/quotes"
-          className="py-3 px-6 text-sm font-medium transition-all duration-200"
+          className="py-3 px-6 text-sm font-medium transition-all duration-200 text-center order-3"
           style={{
             backgroundColor: "transparent",
             color: "#1a73e8",
