@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@SuppressWarnings("null")
 public class InvoiceService {
 
     @Autowired

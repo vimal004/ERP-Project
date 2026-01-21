@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
  * Service for managing users
  */
 @Service
+@SuppressWarnings("null")
 public class UserService {
 
     private final UserRepository userRepository;

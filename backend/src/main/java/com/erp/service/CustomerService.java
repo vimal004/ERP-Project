@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
  * Service class for Customer operations
  */
 @Service
+@SuppressWarnings("null")
 public class CustomerService {
 
     private static final Logger log = LoggerFactory.getLogger(CustomerService.class);

@@ -20,6 +20,7 @@ import java.math.BigDecimal;
  * Creates default admin and user accounts on application startup
  */
 @Configuration
+@SuppressWarnings("null")
 public class DataInitializer {
 
         private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);

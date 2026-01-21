@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
  * Service class for Item operations
  */
 @Service
+@SuppressWarnings("null")
 public class ItemService {
 
     private static final Logger log = LoggerFactory.getLogger(ItemService.class);

@@ -1,7 +1,7 @@
 package com.erp.dto;
 
 import com.erp.entity.RecurringInvoice;
-import com.erp.entity.LineItem;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
