@@ -21,6 +21,9 @@ import NewDeliveryChallanPage from "./pages/sales/NewDeliveryChallanPage.jsx";
 import PayrollPage from "./pages/PayrollPage.jsx";
 import PayrollSettingsLayout from "./pages/payroll/PayrollSettingsLayout.jsx";
 import OrganisationProfile from "./pages/payroll/OrganisationProfile.jsx";
+import Users from "./pages/payroll/Users.jsx";
+import Roles from "./pages/payroll/Roles.jsx";
+import TaxDetails from "./pages/payroll/TaxDetails.jsx";
 import "./App.css";
 
 const ProtectedRoute = () => {
@@ -186,6 +189,9 @@ function App() {
         <Route path="payroll/settings" element={<PayrollSettingsLayout />}>
           <Route index element={<Navigate to="organisation" replace />} />
           <Route path="organisation" element={<OrganisationProfile />} />
+          <Route path="users" element={<Users />} />
+          <Route path="roles" element={<Roles />} />
+          <Route path="taxes/details" element={<TaxDetails />} />
           {/* Placeholders for other settings */}
           <Route
             path="*"

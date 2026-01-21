@@ -13,21 +13,47 @@ const settingsMenu = [
         category: "ORGANISATION SETTINGS",
         items: [
             { name: "Organisation", path: "/payroll/settings/organisation", icon: BuildingOfficeIcon },
-            { name: "Users and Roles", path: "/payroll/settings/users", icon: UsersIcon },
-            { name: "Taxes", path: "/payroll/settings/taxes", icon: CurrencyDollarIcon },
+            {
+                name: "Users and Roles",
+                icon: UsersIcon,
+                subItems: [
+                    { name: "Users", path: "/payroll/settings/users" },
+                    { name: "Roles", path: "/payroll/settings/roles" }
+                ]
+            },
+            {
+                name: "Taxes",
+                icon: CurrencyDollarIcon,
+                subItems: [
+                    { name: "Tax Details", path: "/payroll/settings/taxes/details" }
+                ]
+            },
             { name: "Setup & Configurations", path: "/payroll/settings/configurations", icon: Cog6ToothIcon },
+            { name: "Customisations", path: "/payroll/settings/customisations", icon: DocumentTextIcon },
+            { name: "Automations", path: "/payroll/settings/automations", icon: DocumentTextIcon },
         ]
     },
     {
         category: "MODULE SETTINGS",
         items: [
             { name: "General", path: "/payroll/settings/general", icon: DocumentTextIcon },
+            { name: "Payments", path: "/payroll/settings/payments", icon: CurrencyDollarIcon },
+        ]
+    },
+    {
+        category: "EXTENSIONS & DEVELOPER DATA",
+        items: [
+            { name: "Integrations", path: "/payroll/settings/integrations", icon: DocumentTextIcon },
+            { name: "Developer Data", path: "/payroll/settings/developer", icon: DocumentTextIcon },
         ]
     }
 ];
 
 const PayrollSettingsLayout = () => {
     const location = useLocation();
+
+    const isPathActive = (path) => location.pathname.startsWith(path);
+    const isGroupActive = (item) => item.subItems?.some(sub => isPathActive(sub.path));
 
     return (
         <div className="flex h-screen bg-gray-50">
@@ -46,15 +72,46 @@ const PayrollSettingsLayout = () => {
                                 {section.category}
                             </h3>
                             <ul className="space-y-1">
-                                {section.items.map((item) => {
-                                    const isActive = location.pathname.startsWith(item.path);
+                                {section.items.map((item, itemIdx) => {
+                                    if (item.subItems) {
+                                        const isOpen = isGroupActive(item); // Should probably be stateful for toggle, but simple "always open if active" or "open" works for now. 
+                                        // Actually let's just render them expanded if active or just list them.
+                                        // The screenshot shows it expanded. simpler to just always expand or use state. 
+                                        // For now, let's keep it simple: render subitems if they exist.
+
+                                        return (
+                                            <li key={itemIdx}>
+                                                <div className={`flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${isOpen ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-gray-100"}`}>
+                                                    {/* <item.icon className="w-4 h-4 mr-3" /> */}
+                                                    <span className="flex-1">{item.name}</span>
+                                                </div>
+                                                <ul className="pl-6 space-y-1 mt-1">
+                                                    {item.subItems.map(sub => {
+                                                        const isSubActive = isPathActive(sub.path);
+                                                        return (
+                                                            <li key={sub.path}>
+                                                                <Link
+                                                                    to={sub.path}
+                                                                    className={`block px-2 py-1.5 text-sm font-medium rounded-md transition-colors ${isSubActive ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"}`}
+                                                                >
+                                                                    {sub.name}
+                                                                </Link>
+                                                            </li>
+                                                        )
+                                                    })}
+                                                </ul>
+                                            </li>
+                                        );
+                                    }
+
+                                    const isActive = isPathActive(item.path);
                                     return (
                                         <li key={item.path}>
                                             <Link
                                                 to={item.path}
                                                 className={`flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${isActive
-                                                        ? "bg-blue-50 text-blue-700"
-                                                        : "text-gray-700 hover:bg-gray-100"
+                                                    ? "bg-blue-50 text-blue-700"
+                                                    : "text-gray-700 hover:bg-gray-100"
                                                     }`}
                                             >
                                                 {/* <item.icon className={`w-4 h-4 mr-3 ${isActive ? "text-blue-700" : "text-gray-400"}`} /> */}
