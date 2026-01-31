@@ -278,7 +278,7 @@ const EmployeeDetails = () => {
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-700 mb-1">PAN Number</label>
-                                            <input type="text" value={formData.panNumber || ''} onChange={(e) => setFormData({ ...formData, panNumber: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm" />
+                                            <input autoComplete="off" type="text" value={formData.panNumber || ''} onChange={(e) => setFormData({ ...formData, panNumber: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm" />
                                         </div>
                                         <div className="col-span-2">
                                             <label className="block text-xs font-medium text-gray-700 mb-1">Residential Address</label>
@@ -358,10 +358,19 @@ const EmployeeDetails = () => {
                                         <div className="flex-1 flex items-center border border-gray-300 rounded-md bg-white px-3 py-2">
                                             <span className="text-gray-500 mr-2">₹</span>
                                             <input
+                                                autoComplete="off"
                                                 type="number"
-                                                value={formData.annualCtc || ''}
-                                                onChange={(e) => setFormData({ ...formData, annualCtc: parseFloat(e.target.value) || 0 })}
-                                                className="flex-1 outline-none text-sm"
+                                                value={formData.annualCtc}
+                                                onChange={(e) => {
+                                                    const ctc = parseFloat(e.target.value) || 0;
+                                                    setFormData({
+                                                        ...formData,
+                                                        annualCtc: ctc,
+                                                        basicSalary: ctc * 0.5,
+                                                        specialAllowances: ctc * 0.5
+                                                    });
+                                                }}
+                                                className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm"
                                             />
                                             <span className="text-gray-400 text-xs ml-2">per year</span>
                                         </div>
