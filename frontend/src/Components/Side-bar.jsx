@@ -14,6 +14,14 @@ import {
   ChartPieIcon,
   XMarkIcon,
   BanknotesIcon,
+  UserGroupIcon,
+  FunnelIcon,
+  UsersIcon,
+  BuildingOfficeIcon,
+  MegaphoneIcon,
+  ClipboardDocumentCheckIcon,
+  CalendarIcon,
+  PhoneIcon,
 } from "@heroicons/react/24/outline";
 import { isAdmin } from "../services/authService";
 
@@ -28,6 +36,15 @@ const IconMap = {
   Reports: ChartPieIcon,
   Documents: DocumentTextIcon,
   Payroll: BanknotesIcon,
+  CRM: UserGroupIcon,
+  Leads: FunnelIcon,
+  Contacts: UsersIcon,
+  Accounts: BuildingOfficeIcon,
+  Deals: BanknotesIcon,
+  Campaigns: MegaphoneIcon,
+  Tasks: ClipboardDocumentCheckIcon,
+  Meetings: CalendarIcon,
+  Calls: PhoneIcon,
 };
 
 const navItems = [
@@ -101,6 +118,21 @@ const navItems = [
       { name: "Approvals", path: "/payroll/approvals" },
       { name: "Reports", path: "/payroll/reports" },
       { name: "Settings", path: "/payroll/settings/organisation" },
+    ],
+  },
+  {
+    name: "CRM",
+    icon: "CRM",
+    subItems: [
+      { name: "Leads", path: "/crm/leads", icon: "Leads" },
+      { name: "Contacts", path: "/crm/contacts", icon: "Contacts" },
+      { name: "Accounts", path: "/crm/accounts", icon: "Accounts" },
+      { name: "Deals", path: "/crm/deals", icon: "Deals" },
+      { name: "Documents", path: "/crm/documents", icon: "Documents" },
+      { name: "Campaigns", path: "/crm/campaigns", icon: "Campaigns" },
+      { name: "Tasks", path: "/crm/tasks", icon: "Tasks" },
+      { name: "Meetings", path: "/crm/meetings", icon: "Meetings" },
+      { name: "Calls", path: "/crm/calls", icon: "Calls" },
     ],
   },
 ];
@@ -215,14 +247,26 @@ const SidebarItem = ({ item }) => {
                     borderRadius: "20px",
                   }}
                   className={`
-                    flex justify-between items-center py-2.5 px-3 text-sm font-medium transition-all duration-200
+                    flex items-center py-2.5 px-3 text-sm font-medium transition-all duration-200
                     ${!location.pathname.startsWith(sub.path)
                       ? "hover:bg-gray-100"
                       : ""
                     }
                   `}
                 >
-                  <span>{sub.name}</span>
+                  {sub.icon && IconMap[sub.icon] && (
+                    <span className="mr-3">
+                      {React.createElement(IconMap[sub.icon], {
+                        className: "w-4 h-4",
+                        style: {
+                          color: location.pathname.startsWith(sub.path)
+                            ? "#1a73e8"
+                            : "#5f6368",
+                        },
+                      })}
+                    </span>
+                  )}
+                  <span className="flex-1">{sub.name}</span>
                   {[
                     "Customers",
                     "Quotes",
