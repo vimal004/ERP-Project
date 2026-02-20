@@ -19,7 +19,6 @@ import NewRecurringInvoicePage from "./pages/sales/NewRecurringInvoicePage.jsx";
 import DeliveryChallansPage from "./pages/sales/DeliveryChallansPage.jsx";
 import NewDeliveryChallanPage from "./pages/sales/NewDeliveryChallanPage.jsx";
 import PayrollPage from "./pages/PayrollPage.jsx";
-import PayrollLayout from "./pages/payroll/PayrollLayout.jsx";
 import PayrollDashboard from "./pages/payroll/PayrollDashboard.jsx";
 import Employees from "./pages/payroll/Employees.jsx";
 import NewEmployee from "./pages/payroll/NewEmployee.jsx";
@@ -79,10 +78,8 @@ function App() {
     <Routes>
       {/* 1. Public Route: Login Page (Root Route) */}
       <Route path="/" element={<LoginPage />} />
-
       {/* 2. Protected Routes Wrapper */}
       <Route element={<ProtectedRoute />}>
-
         {/* A. Standard Dashboard Layout Routes */}
         <Route element={<DashboardLayout />}>
           {/* The index route for authenticated users is /home */}
@@ -185,6 +182,34 @@ function App() {
             element={<PlaceholderPage title="Credit Notes List" />}
           />
 
+          {/* --- Payroll Routes (Now integrated into DashboardLayout) --- */}
+          <Route path="payroll">
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<PayrollDashboard />} />
+            <Route path="run" element={<PayrollPage title="Run Payroll" />} />
+            <Route path="employees" element={<Employees />} />
+            <Route path="employees/new" element={<NewEmployee />} />
+            <Route path="employees/:id" element={<EmployeeDetails />} />
+            <Route
+              path="approvals"
+              element={<PayrollPage title="Approvals" />}
+            />
+            <Route path="reports" element={<PayrollPage title="Reports" />} />
+
+            {/* Nested Settings under Payroll */}
+            <Route path="settings" element={<PayrollSettingsLayout />}>
+              <Route index element={<Navigate to="organisation" replace />} />
+              <Route path="organisation" element={<OrganisationProfile />} />
+              <Route path="users" element={<Users />} />
+              <Route path="roles" element={<Roles />} />
+              <Route path="taxes/details" element={<TaxDetails />} />
+              <Route
+                path="*"
+                element={<PlaceholderPage title="Settings Placeholder" />}
+              />
+            </Route>
+          </Route>
+
           {/* Nested Standard Routes (Placeholders) */}
           <Route
             path="purchases/vendors"
@@ -216,40 +241,10 @@ function App() {
             path="documents"
             element={<PlaceholderPage title="Documents" />}
           />
-        </Route> {/* End of DashboardLayout Routes */}
-
-        {/* B. Payroll Layout Routes (Separate Layout) */}
-        <Route path="payroll" element={<PayrollLayout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<PayrollDashboard />} />
-          <Route path="run" element={<PayrollPage title="Run Payroll" />} />
-          <Route path="employees" element={<Employees />} />
-          <Route path="employees/new" element={<NewEmployee />} />
-          <Route path="employees/:id" element={<EmployeeDetails />} />
-          <Route
-            path="approvals"
-            element={<PayrollPage title="Approvals" />}
-          />
-          <Route
-            path="reports"
-            element={<PayrollPage title="Reports" />}
-          />
-        </Route>
-
-        <Route path="payroll/settings" element={<PayrollSettingsLayout />}>
-          <Route index element={<Navigate to="organisation" replace />} />
-          <Route path="organisation" element={<OrganisationProfile />} />
-          <Route path="users" element={<Users />} />
-          <Route path="roles" element={<Roles />} />
-          <Route path="taxes/details" element={<TaxDetails />} />
-          <Route
-            path="*"
-            element={<PlaceholderPage title="Settings Placeholder" />}
-          />
-        </Route>
-
-      </Route> {/* End of Protected Routes (Wrapper) */}
-
+        </Route>{" "}
+        {/* End of DashboardLayout Routes */}
+      </Route>{" "}
+      {/* End of Protected Routes (Wrapper) */}
       {/* Catch-all route for 404 */}
       <Route path="*" element={<NotFound />} />
     </Routes>

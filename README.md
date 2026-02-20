@@ -46,6 +46,14 @@ This ERP Management System is a comprehensive business solution designed to stre
 - **Recurring Invoices** - Automate recurring billing cycles
 - **Delivery Challans** - Track goods delivery documentation
 
+### 💸 Payroll Management
+
+- **Payroll Dashboard** - Visual overview of payroll costs and employee metrics
+- **Employee Management** - Detailed tracking of employee personal and professional info
+- **Pay Run Processing** - Streamlined workflow for monthly salary processing
+- **Tax & Deductions** - Automated calculations for EPF, ESI, and TDS
+- **Payroll Settings** - Configurable organisation profiles and tax details
+
 ### 🔐 Security & Authentication
 
 - **JWT Authentication** - Secure token-based authentication
