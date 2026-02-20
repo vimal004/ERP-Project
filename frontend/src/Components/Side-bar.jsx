@@ -184,9 +184,10 @@ const SidebarItem = ({ item }) => {
           className={`
             flex items-center p-3 text-sm font-medium transition-all duration-200
             ${isCollapsible ? "justify-between" : ""}
-            ${!(isCurrentActiveLink || isSubItemActive)
-              ? "hover:bg-gray-100"
-              : ""
+            ${
+              !(isCurrentActiveLink || isSubItemActive)
+                ? "hover:bg-gray-100"
+                : ""
             }
           `}
         >
@@ -205,8 +206,9 @@ const SidebarItem = ({ item }) => {
 
           {isCollapsible && (
             <ChevronRightIcon
-              className={`w-4 h-4 ml-2 transition-transform duration-200 ${isOpen ? "rotate-90" : "rotate-0"
-                }`}
+              className={`w-4 h-4 ml-2 transition-transform duration-200 ${
+                isOpen ? "rotate-90" : "rotate-0"
+              }`}
               style={{
                 color:
                   isCurrentActiveLink || isSubItemActive
@@ -248,9 +250,10 @@ const SidebarItem = ({ item }) => {
                   }}
                   className={`
                     flex items-center py-2.5 px-3 text-sm font-medium transition-all duration-200
-                    ${!location.pathname.startsWith(sub.path)
-                      ? "hover:bg-gray-100"
-                      : ""
+                    ${
+                      !location.pathname.startsWith(sub.path)
+                        ? "hover:bg-gray-100"
+                        : ""
                     }
                   `}
                 >
@@ -329,7 +332,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             >
               <ChartPieIcon className="w-5 h-5 text-white" />
             </div>
-            <span>Kayaa ERP</span>
+            <span>KSK ERP</span>
           </Link>
           <button
             onClick={onClose}

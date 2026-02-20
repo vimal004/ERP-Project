@@ -103,7 +103,7 @@ const NewInvoicePage = () => {
 
   const subTotal = formData.items.reduce(
     (sum, item) => sum + (item.amount || 0),
-    0
+    0,
   );
   const taxAmount = (subTotal * (formData.taxRate || 0)) / 100;
   const total = subTotal - taxAmount + (parseFloat(formData.adjustment) || 0);
@@ -192,7 +192,7 @@ const NewInvoicePage = () => {
     // --- Header ---
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
-    doc.text("Kayaa Electronics Pvt Ltd", 14, 20);
+    doc.text("KSK electronics pvt ltd", 14, 20);
 
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");

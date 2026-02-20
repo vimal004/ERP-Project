@@ -330,7 +330,7 @@ const HelpModal = ({ onClose }) => {
             >
               <BookOpenIcon className="w-5 h-5" style={{ color: "#1a73e8" }} />
             </div>
-            Kayaa ERP Help Manual
+            KSK ERP Help Manual
           </h3>
           <button
             onClick={onClose}
@@ -351,7 +351,7 @@ const HelpModal = ({ onClose }) => {
               <HomeIcon className="w-5 h-5" /> Introduction
             </h4>
             <p className="text-gray-600 leading-relaxed">
-              Welcome to Kayaa ERP, a comprehensive business management solution
+              Welcome to KSK ERP, a comprehensive business management solution
               designed to streamline your operations, from sales and inventory
               to financial reporting.
             </p>
@@ -579,7 +579,7 @@ const Header = ({ onMenuClick, onSettingsClick, onHelpClick }) => {
       const filtered = SEARCHABLE_PAGES.filter(
         (page) =>
           page.name.toLowerCase().includes(query.toLowerCase()) ||
-          page.category.toLowerCase().includes(query.toLowerCase())
+          page.category.toLowerCase().includes(query.toLowerCase()),
       );
       setSearchResults(filtered);
       setIsSearchOpen(true);
@@ -627,7 +627,7 @@ const Header = ({ onMenuClick, onSettingsClick, onHelpClick }) => {
             Hello, {getUserName()}
           </div>
           <div className="text-xs" style={{ color: "#5f6368" }}>
-            Kayaa Electronics Pvt Ltd
+            KSK Electronics Pvt Ltd
           </div>
         </div>
       </div>
