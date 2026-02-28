@@ -294,16 +294,22 @@ const NewEmployee = () => {
     setIsLoading(true);
     setError("");
 
-    // Sanitize data: Convert empty strings to null for numeric/date/enum fields
+    // Sanitize data: Ensure correct types for numeric and date fields
     const payload = {
       ...formData,
-      annualCtc: formData.annualCtc === "" ? null : formData.annualCtc,
-      basicSalary: formData.basicSalary === "" ? null : formData.basicSalary,
-      hra: formData.hra === "" ? null : formData.hra,
-      specialAllowances:
-        formData.specialAllowances === "" ? null : formData.specialAllowances,
+      // Convert numeric fields to Numbers or null
+      annualCtc: formData.annualCtc === "" ? null : Number(formData.annualCtc),
+      basicSalary: formData.basicSalary === "" ? null : Number(formData.basicSalary),
+      hra: formData.hra === "" ? null : Number(formData.hra),
+      specialAllowances: formData.specialAllowances === "" ? null : Number(formData.specialAllowances),
+
+      // Ensure date fields are null if empty (dateOfJoining is required by validation, so it should be a string)
       dateOfBirth: formData.dateOfBirth === "" ? null : formData.dateOfBirth,
+      dateOfJoining: formData.dateOfJoining === "" ? null : formData.dateOfJoining,
+
+      // Ensure gender and paymentMode are null if empty (though they usually have defaults)
       gender: formData.gender === "" ? null : formData.gender,
+      paymentMode: formData.paymentMode === "" ? null : formData.paymentMode,
     };
 
     try {

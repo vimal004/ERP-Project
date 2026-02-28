@@ -8,6 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -89,6 +90,22 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handle JSON parsing errors or data type mismatches
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleMessageNotReadableException(HttpMessageNotReadableException ex) {
+        log.warn("Payload not readable: {}", ex.getMessage());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        response.put("error", "The request body is invalid. Please check your inputs.");
+        response.put("details", ex.getMessage());
+        response.put("timestamp", LocalDateTime.now().toString());
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    /**
      * Handle generic exceptions
      */
     @ExceptionHandler(Exception.class)
@@ -97,7 +114,7 @@ public class GlobalExceptionHandler {
 
         Map<String, Object> response = new HashMap<>();
         response.put("success", false);
-        response.put("error", "An unexpected error occurred. Please try again.");
+        response.put("error", ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred. Please try again.");
         response.put("timestamp", LocalDateTime.now().toString());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

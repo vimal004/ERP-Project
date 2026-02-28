@@ -2,6 +2,7 @@ package com.erp.service;
 
 import com.erp.entity.Employee;
 import com.erp.repository.EmployeeRepository;
+import com.erp.exception.DuplicateResourceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,10 +27,10 @@ public class EmployeeService {
 
     public Employee createEmployee(Employee employee) {
         if (employeeRepository.findByEmployeeId(employee.getEmployeeId()).isPresent()) {
-            throw new RuntimeException("Employee ID already exists");
+            throw new DuplicateResourceException("Employee", "employeeId", employee.getEmployeeId());
         }
         if (employeeRepository.findByWorkEmail(employee.getWorkEmail()).isPresent()) {
-            throw new RuntimeException("Work Email already exists");
+            throw new DuplicateResourceException("Employee", "workEmail", employee.getWorkEmail());
         }
         return employeeRepository.save(employee);
     }
