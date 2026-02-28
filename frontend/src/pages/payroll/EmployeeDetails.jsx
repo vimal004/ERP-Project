@@ -86,18 +86,29 @@ const EmployeeDetails = () => {
     // Normalize formData before sending — fix field name mapping
     const preparePayload = (data) => {
         const payload = { ...data };
-        // The Java entity uses `isDirector` internally but Jackson serializes as `director`
-        // Ensure we always send the right key
-        if ('isDirector' in payload && !('director' in payload)) {
+
+        // The Java entity uses `isDirector` internally but Jackson serializes as `director`.
+        // Handle both directions to ensure the backend always receives `director`.
+        if ('isDirector' in payload) {
             payload.director = payload.isDirector;
+            delete payload.isDirector;
         }
+
+        // Remove the database `id` from the body — it's already in the URL path.
+        // Sending it in the body can cause confusion if it differs.
+        delete payload.id;
+
         return payload;
     };
 
     const handleSave = async (dataToSave = formData) => {
         setSaving(true);
         try {
-            const payload = preparePayload(dataToSave);
+            // Always merge the current employee state with the edited form data.
+            // This ensures fields not present in the current edit section
+            // retain their existing database values and don't get set to null.
+            const merged = { ...employee, ...dataToSave };
+            const payload = preparePayload(merged);
             const data = await updateEmployee(id, payload);
             setEmployee(data);
             setEditingSection(null);

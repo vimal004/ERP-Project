@@ -87,26 +87,26 @@ public class EmployeeService {
         // Update Status
         if (employeeDetails.getStatus() != null) employee.setStatus(employeeDetails.getStatus());
 
-        // Update Salary
-        employee.setAnnualCtc(employeeDetails.getAnnualCtc());
-        employee.setBasicSalary(employeeDetails.getBasicSalary());
-        employee.setHra(employeeDetails.getHra());
-        employee.setSpecialAllowances(employeeDetails.getSpecialAllowances());
+        // Update Salary — only overwrite when incoming value is non-null
+        if (employeeDetails.getAnnualCtc() != null) employee.setAnnualCtc(employeeDetails.getAnnualCtc());
+        if (employeeDetails.getBasicSalary() != null) employee.setBasicSalary(employeeDetails.getBasicSalary());
+        if (employeeDetails.getHra() != null) employee.setHra(employeeDetails.getHra());
+        if (employeeDetails.getSpecialAllowances() != null) employee.setSpecialAllowances(employeeDetails.getSpecialAllowances());
 
-        // Update Personal
-        employee.setDateOfBirth(employeeDetails.getDateOfBirth());
-        employee.setFatherName(employeeDetails.getFatherName());
-        employee.setPersonalEmail(employeeDetails.getPersonalEmail());
-        employee.setPresentAddress(employeeDetails.getPresentAddress());
-        employee.setPermanentAddress(employeeDetails.getPermanentAddress());
+        // Update Personal — only overwrite when incoming value is non-null
+        if (employeeDetails.getDateOfBirth() != null) employee.setDateOfBirth(employeeDetails.getDateOfBirth());
+        if (employeeDetails.getFatherName() != null) employee.setFatherName(employeeDetails.getFatherName());
+        if (employeeDetails.getPersonalEmail() != null) employee.setPersonalEmail(employeeDetails.getPersonalEmail());
+        if (employeeDetails.getPresentAddress() != null) employee.setPresentAddress(employeeDetails.getPresentAddress());
+        if (employeeDetails.getPermanentAddress() != null) employee.setPermanentAddress(employeeDetails.getPermanentAddress());
 
-        // Update Payment
-        employee.setPaymentMode(employeeDetails.getPaymentMode());
-        employee.setBankName(employeeDetails.getBankName());
-        employee.setAccountNumber(employeeDetails.getAccountNumber());
-        employee.setIfscCode(employeeDetails.getIfscCode());
-        employee.setAccountHolderName(employeeDetails.getAccountHolderName());
-        employee.setPanNumber(employeeDetails.getPanNumber());
+        // Update Payment — only overwrite when incoming value is non-null
+        if (employeeDetails.getPaymentMode() != null) employee.setPaymentMode(employeeDetails.getPaymentMode());
+        if (employeeDetails.getBankName() != null) employee.setBankName(employeeDetails.getBankName());
+        if (employeeDetails.getAccountNumber() != null) employee.setAccountNumber(employeeDetails.getAccountNumber());
+        if (employeeDetails.getIfscCode() != null) employee.setIfscCode(employeeDetails.getIfscCode());
+        if (employeeDetails.getAccountHolderName() != null) employee.setAccountHolderName(employeeDetails.getAccountHolderName());
+        if (employeeDetails.getPanNumber() != null) employee.setPanNumber(employeeDetails.getPanNumber());
 
         return employeeRepository.save(employee);
     }
