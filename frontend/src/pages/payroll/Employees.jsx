@@ -17,6 +17,7 @@ const Employees = () => {
   const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [currentView, setCurrentView] = useState("All Employees"); // Default to All
   const [isViewDropdownOpen, setIsViewDropdownOpen] = useState(false);
   const [isFilterSidebarOpen, setIsFilterSidebarOpen] = useState(false);
@@ -36,11 +37,13 @@ const Employees = () => {
 
   const fetchEmployees = async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await getAllEmployees();
       setEmployees(data);
-    } catch (error) {
-      console.error("Error fetching employees:", error);
+    } catch (err) {
+      console.error("Error fetching employees:", err);
+      setError(err.message || "Failed to load employees. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -71,7 +74,7 @@ const Employees = () => {
       return false;
     if (
       filters.status !== "All Status" &&
-      emp.status !== filters.status.toUpperCase()
+      emp.status !== filters.status
     )
       return false;
     if (
@@ -92,9 +95,24 @@ const Employees = () => {
       "bg-pink-100 text-pink-600",
       "bg-teal-100 text-teal-600",
     ];
+    if (!name || name.length === 0) return colors[0];
     const charCode = name.charCodeAt(0);
     return colors[charCode % colors.length];
   };
+
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case "ACTIVE": return "bg-green-100 text-green-700";
+      case "RESIGNED": return "bg-yellow-100 text-yellow-700";
+      case "TERMINATED": return "bg-red-100 text-red-700";
+      case "DECEASED": return "bg-gray-200 text-gray-700";
+      case "ON_LEAVE": return "bg-blue-100 text-blue-700";
+      default: return "bg-gray-100 text-gray-700";
+    }
+  };
+
+  const uniqueDepartments = [...new Set(employees.map(e => e.department).filter(Boolean))];
+  const resetFilters = () => setFilters({ search: "", id: "", email: "", status: "All Status", department: "Select Department" });
 
   return (
     <div className="flex h-full bg-[#f8f9fa] relative overflow-hidden">
@@ -177,6 +195,11 @@ const Employees = () => {
               <div className="flex items-center justify-center h-64">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1a73e8]"></div>
               </div>
+            ) : error ? (
+              <div className="flex flex-col items-center justify-center h-64 gap-3">
+                <p className="text-red-500 text-sm">{error}</p>
+                <button onClick={fetchEmployees} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">Retry</button>
+              </div>
             ) : (
               <table className="w-full min-w-[1000px]">
                 <thead className="bg-[#fcfcfc] sticky top-0 z-0">
@@ -254,10 +277,9 @@ const Employees = () => {
                         </td>
                         <td className="px-6 py-4">
                           <span
-                            className={`px-2 py-0.5 rounded text-xs font-medium uppercase
-                                                    ${emp.status === "ACTIVE" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}`}
+                            className={`px-2 py-0.5 rounded text-xs font-medium uppercase ${getStatusStyle(emp.status)}`}
                           >
-                            {emp.status}
+                            {emp.status || 'ACTIVE'}
                           </span>
                         </td>
                       </tr>
@@ -301,9 +323,78 @@ const Employees = () => {
                     setFilters({ ...filters, search: e.target.value })
                   }
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  placeholder="Employee name..."
                 />
               </div>
-              {/* More filters can be re-enabled here */}
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                  Employee ID
+                </label>
+                <input
+                  type="text"
+                  value={filters.id}
+                  onChange={(e) =>
+                    setFilters({ ...filters, id: e.target.value })
+                  }
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  placeholder="e.g. EMP001"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                  Work Email
+                </label>
+                <input
+                  type="text"
+                  value={filters.email}
+                  onChange={(e) =>
+                    setFilters({ ...filters, email: e.target.value })
+                  }
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  placeholder="Email address..."
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                  Status
+                </label>
+                <select
+                  value={filters.status}
+                  onChange={(e) =>
+                    setFilters({ ...filters, status: e.target.value })
+                  }
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  <option>All Status</option>
+                  <option value="ACTIVE">Active</option>
+                  <option value="RESIGNED">Resigned</option>
+                  <option value="TERMINATED">Terminated</option>
+                  <option value="ON_LEAVE">On Leave</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={filters.department}
+                  onChange={(e) =>
+                    setFilters({ ...filters, department: e.target.value })
+                  }
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  <option>Select Department</option>
+                  {uniqueDepartments.map(dept => (
+                    <option key={dept} value={dept}>{dept}</option>
+                  ))}
+                </select>
+              </div>
+              <button
+                onClick={resetFilters}
+                className="w-full mt-2 py-2 text-sm text-blue-600 border border-blue-200 rounded-md hover:bg-blue-50 font-medium"
+              >
+                Reset All Filters
+              </button>
             </div>
           </div>
         </div>

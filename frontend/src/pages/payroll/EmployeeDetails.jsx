@@ -18,9 +18,11 @@ const EmployeeDetails = () => {
     const navigate = useNavigate();
     const [employee, setEmployee] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
     const [activeTab, setActiveTab] = useState("overview");
     const [editingSection, setEditingSection] = useState(null);
     const [formData, setFormData] = useState({});
+    const [toast, setToast] = useState(null); // { type: 'success'|'error', message: '' }
     const [exitForm, setExitForm] = useState({
         lastWorkingDay: "",
         reason: "",
@@ -59,59 +61,99 @@ const EmployeeDetails = () => {
         fetchEmployee();
     }, [id]);
 
+    // Auto-dismiss toast
+    useEffect(() => {
+        if (toast) {
+            const timer = setTimeout(() => setToast(null), 4000);
+            return () => clearTimeout(timer);
+        }
+    }, [toast]);
+
+    const showToast = (type, message) => setToast({ type, message });
+
     const fetchEmployee = async () => {
         try {
             const data = await getEmployeeById(id);
             setEmployee(data);
         } catch (error) {
             console.error("Error fetching employee details:", error);
+            showToast('error', error.message || 'Failed to load employee details.');
         } finally {
             setLoading(false);
         }
     };
 
+    // Normalize formData before sending — fix field name mapping
+    const preparePayload = (data) => {
+        const payload = { ...data };
+        // The Java entity uses `isDirector` internally but Jackson serializes as `director`
+        // Ensure we always send the right key
+        if ('isDirector' in payload && !('director' in payload)) {
+            payload.director = payload.isDirector;
+        }
+        return payload;
+    };
+
     const handleSave = async (dataToSave = formData) => {
+        setSaving(true);
         try {
-            const data = await updateEmployee(id, dataToSave);
+            const payload = preparePayload(dataToSave);
+            const data = await updateEmployee(id, payload);
             setEmployee(data);
             setEditingSection(null);
-            console.log("Updated successfully");
+            showToast('success', 'Employee updated successfully.');
         } catch (error) {
             console.error("Error updating employee:", error);
-            alert("Failed to update employee.");
+            showToast('error', error.message || 'Failed to update employee.');
+        } finally {
+            setSaving(false);
         }
     };
 
     const handleDelete = async () => {
+        setSaving(true);
         try {
             await deleteEmployee(id);
             setShowDeleteModal(false);
             navigate('/payroll/employees');
         } catch (error) {
             console.error("Error deleting employee:", error);
-            alert("Failed to delete employee.");
+            setSaving(false);
+            setShowDeleteModal(false);
+            showToast('error', error.message || 'Failed to delete employee.');
         }
     };
 
     const handleExitProcess = async (exitData) => {
+        if (!exitData.reason) {
+            showToast('error', 'Please select a reason for exit.');
+            return;
+        }
+        if (!exitData.lastWorkingDay) {
+            showToast('error', 'Please select the last working day.');
+            return;
+        }
+        setSaving(true);
         try {
-            // Check if reason maps to EmployeeStatus
             let newStatus = "ACTIVE";
             if (exitData.reason === "resignation") newStatus = "RESIGNED";
             else if (exitData.reason === "termination") newStatus = "TERMINATED";
+            else if (exitData.reason === "absconding") newStatus = "TERMINATED";
 
             const updatedEmployee = {
                 ...employee,
                 status: newStatus,
             };
 
-            const data = await updateEmployee(id, updatedEmployee);
+            const data = await updateEmployee(id, preparePayload(updatedEmployee));
             setEmployee(data);
             setShowExitModal(false);
-            console.log("Exit process completed");
+            showToast('success', 'Exit process completed successfully.');
         } catch (error) {
             console.error("Error initiating exit process:", error);
-            alert("Failed to initiate exit process.");
+            showToast('error', error.message || 'Failed to initiate exit process.');
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -129,8 +171,33 @@ const EmployeeDetails = () => {
         return colors[charCode % colors.length];
     };
 
+    const getStatusStyle = (status) => {
+        switch (status) {
+            case 'ACTIVE': return 'bg-green-100 text-green-700';
+            case 'RESIGNED': return 'bg-yellow-100 text-yellow-700';
+            case 'TERMINATED': return 'bg-red-100 text-red-700';
+            case 'DECEASED': return 'bg-gray-200 text-gray-700';
+            case 'ON_LEAVE': return 'bg-blue-100 text-blue-700';
+            default: return 'bg-gray-100 text-gray-600';
+        }
+    };
+
+    const tabKey = (label) => label.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+
     return (
-        <div className="flex flex-col h-full bg-white w-full">
+        <div className="flex flex-col h-full bg-white w-full relative">
+            {/* Toast Notification */}
+            {toast && (
+                <div className={`fixed top-4 right-4 z-[100] max-w-sm px-4 py-3 rounded-lg shadow-lg border text-sm font-medium flex items-center gap-2 animate-in slide-in-from-top duration-200 ${
+                    toast.type === 'success'
+                        ? 'bg-green-50 border-green-200 text-green-800'
+                        : 'bg-red-50 border-red-200 text-red-800'
+                }`}>
+                    <span>{toast.type === 'success' ? '✓' : '✕'}</span>
+                    <span className="flex-1">{toast.message}</span>
+                    <button onClick={() => setToast(null)} className="ml-2 text-gray-400 hover:text-gray-600"><XMarkIcon className="w-4 h-4" /></button>
+                </div>
+            )}
             {/* Header */}
             <div className="px-8 py-6 border-b border-gray-200 flex justify-between items-start bg-white">
                 <div className="flex gap-4">
@@ -142,8 +209,8 @@ const EmployeeDetails = () => {
                             <h1 className="text-xl font-bold text-gray-900">
                                 {employee.employeeId} - {employee.firstName} {employee.lastName}
                             </h1>
-                            <span className={`px-2 py-0.5 rounded text-xs font-medium uppercase ${employee.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-                                {employee.status || 'Active'}
+                            <span className={`px-2 py-0.5 rounded text-xs font-medium uppercase ${getStatusStyle(employee.status)}`}>
+                                {employee.status || 'ACTIVE'}
                             </span>
                         </div>
                         <p className="text-sm text-gray-500 mt-1">{employee.designation}</p>
@@ -193,7 +260,7 @@ const EmployeeDetails = () => {
                                 <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 z-50 py-2 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
                                     <button
                                         onClick={() => { setShowVehicleModal(true); setShowActionMenu(false); }}
-                                        className="w-full text-left px-4 py-2.5 text-sm text-white bg-blue-500 hover:bg-blue-600 font-medium mb-1 mx-2 rounded w-[calc(100%-16px)]"
+                                        className="text-left px-4 py-2.5 text-sm text-white bg-blue-500 hover:bg-blue-600 font-medium mb-1 mx-2 rounded" style={{ width: 'calc(100% - 16px)' }}
                                     >
                                         Add / Update Vehicle Details
                                     </button>
@@ -223,8 +290,8 @@ const EmployeeDetails = () => {
                     {['Overview', 'Salary Details', 'Investments', 'Payslips & Forms', 'Loans'].map((tab) => (
                         <button
                             key={tab}
-                            onClick={() => setActiveTab(tab.toLowerCase())}
-                            className={`py-4 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.toLowerCase()
+                            onClick={() => setActiveTab(tabKey(tab))}
+                            className={`py-4 text-sm font-medium border-b-2 transition-colors ${activeTab === tabKey(tab)
                                 ? 'border-blue-600 text-blue-600'
                                 : 'border-transparent text-gray-500 hover:text-gray-700'
                                 }`}
@@ -314,10 +381,7 @@ const EmployeeDetails = () => {
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-700 mb-1">Work Location <span className="text-red-500">*</span></label>
-                                            <select value={formData.workLocation || 'Head Office'} onChange={(e) => setFormData({ ...formData, workLocation: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm">
-                                                <option value="Head Office">Head Office (No.246/1, Plot...)</option>
-                                                <option value="Branch Office">Branch Office</option>
-                                            </select>
+                                            <input type="text" value={formData.workLocation || ''} onChange={(e) => setFormData({ ...formData, workLocation: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm" placeholder="e.g. Head Office" />
                                         </div>
                                     </div>
 
@@ -325,14 +389,14 @@ const EmployeeDetails = () => {
                                     <div className="grid grid-cols-2 gap-6">
                                         <SearchableDropdown
                                             label={<span>Designation <span className="text-red-500">*</span></span>}
-                                            options={['Manager', 'Developer', 'Designer', 'HR', 'Sales', 'Managing Director']} // Simplified options for details view
+                                            options={['Managing Director', 'Customer Support Manager', 'Marketing / Technical Manager', 'Operation Manager', 'Sr.Engineer - Production', 'Software Engineer', 'Accountant', 'Manager', 'Developer', 'Designer', 'HR', 'Sales']}
                                             value={formData.designation}
                                             onChange={(val) => setFormData({ ...formData, designation: val })}
                                             placeholder="Select Designation"
                                         />
                                         <SearchableDropdown
                                             label={<span>Department <span className="text-red-500">*</span></span>}
-                                            options={['IT', 'HR', 'Sales', 'Marketing', 'Usage', 'Production']}
+                                            options={['Finance', 'Admin', 'ADMIN ASSOCIATE', 'OPERATION MANAGER', 'Software Development', 'Production', 'Sales', 'Marketing', 'HR', 'Engineering', 'IT']}
                                             value={formData.department}
                                             onChange={(val) => setFormData({ ...formData, department: val })}
                                             placeholder="Select Department"
@@ -354,10 +418,12 @@ const EmployeeDetails = () => {
                                         <p className="text-xs text-gray-500 ml-6">The employee will be able to view payslips, submit their IT declaration and create reimbursement claims through the employee portal.</p>
                                     </div>
 
-                                    {/* Buttons */}
                                     <div className="flex gap-3 pt-4">
-                                        <button type="button" onClick={handleSave} className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700">Save</button>
-                                        <button type="button" onClick={() => setEditingSection(null)} className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm font-medium hover:bg-gray-50">Cancel</button>
+                                        <button type="button" onClick={handleSave} disabled={saving} className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                                            {saving && <span className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>}
+                                            {saving ? 'Saving...' : 'Save'}
+                                        </button>
+                                        <button type="button" onClick={() => setEditingSection(null)} disabled={saving} className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm font-medium hover:bg-gray-50 disabled:opacity-50">Cancel</button>
                                     </div>
                                     <div className="text-right">
                                         <span className="text-xs text-red-500">* indicates mandatory fields</span>
@@ -415,8 +481,11 @@ const EmployeeDetails = () => {
                                         </div>
                                     </div>
                                     <div className="flex gap-3 pt-4">
-                                        <button type="button" onClick={handleSave} className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700">Save</button>
-                                        <button type="button" onClick={() => setEditingSection(null)} className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm font-medium hover:bg-gray-50">Cancel</button>
+                                        <button type="button" onClick={handleSave} disabled={saving} className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                                            {saving && <span className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>}
+                                            {saving ? 'Saving...' : 'Save'}
+                                        </button>
+                                        <button type="button" onClick={() => setEditingSection(null)} disabled={saving} className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm font-medium hover:bg-gray-50 disabled:opacity-50">Cancel</button>
                                     </div>
                                 </form>
                             </div>
@@ -445,17 +514,46 @@ const EmployeeDetails = () => {
                                                 <option value="CASH">Cash</option>
                                             </select>
                                         </div>
-                                        {/* Add Bank fields if needed, kept simple for now based on request scope */}
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-700 mb-1">PAN Number</label>
+                                            <input type="text" value={formData.panNumber || ''} onChange={(e) => setFormData({ ...formData, panNumber: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm" />
+                                        </div>
                                     </div>
+                                    {(formData.paymentMode === 'BANK_TRANSFER' || !formData.paymentMode) && (
+                                        <div className="grid grid-cols-2 gap-6">
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">Bank Name</label>
+                                                <input type="text" value={formData.bankName || ''} onChange={(e) => setFormData({ ...formData, bankName: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">Account Number</label>
+                                                <input type="text" value={formData.accountNumber || ''} onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">IFSC Code</label>
+                                                <input type="text" value={formData.ifscCode || ''} onChange={(e) => setFormData({ ...formData, ifscCode: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">Account Holder Name</label>
+                                                <input type="text" value={formData.accountHolderName || ''} onChange={(e) => setFormData({ ...formData, accountHolderName: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm" />
+                                            </div>
+                                        </div>
+                                    )}
                                     <div className="flex gap-3 pt-4">
-                                        <button type="button" onClick={handleSave} className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700">Save</button>
-                                        <button type="button" onClick={() => setEditingSection(null)} className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm font-medium hover:bg-gray-50">Cancel</button>
+                                        <button type="button" onClick={handleSave} disabled={saving} className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                                            {saving && <span className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>}
+                                            {saving ? 'Saving...' : 'Save'}
+                                        </button>
+                                        <button type="button" onClick={() => setEditingSection(null)} disabled={saving} className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm font-medium hover:bg-gray-50 disabled:opacity-50">Cancel</button>
                                     </div>
                                 </form>
                             </div>
                         ) : (
                             <Section title="Payment Information" onEdit={isAdmin() ? () => { setFormData(employee); setEditingSection('payment'); } : null}>
-                                <GridItem label="Payment Mode" value={employee.paymentMode} />
+                                <GridItem label="Payment Mode" value={employee.paymentMode || '-'} />
+                                <GridItem label="Bank Name" value={employee.bankName || '-'} />
+                                <GridItem label="Account Number" value={employee.accountNumber || '-'} />
+                                <GridItem label="IFSC Code" value={employee.ifscCode || '-'} />
                             </Section>
                         )}
                     </div>
@@ -580,29 +678,29 @@ const EmployeeDetails = () => {
                                 <div className="flex gap-3">
                                     <button
                                         type="button"
+                                        disabled={saving}
                                         onClick={() => {
-                                            // Calculate Basic and Other Allowances before saving
-                                            const annualCtc = formData.annualCtc || 0;
+                                            const annualCtc = parseFloat(formData.annualCtc) || 0;
                                             const basic = annualCtc * 0.5;
                                             const fixed = annualCtc - basic;
                                             const updatedData = {
                                                 ...formData,
+                                                annualCtc,
                                                 basicSalary: basic,
-                                                // Assuming fixed allowance maps to specialAllowances or similar in backend,
-                                                // or strictly Basic + Fixed = CTC.
-                                                // For now, let's map it:
                                                 specialAllowances: fixed
                                             };
                                             handleSave(updatedData);
                                         }}
-                                        className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700"
+                                        className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                     >
-                                        Save
+                                        {saving && <span className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>}
+                                        {saving ? 'Saving...' : 'Save'}
                                     </button>
                                     <button
                                         type="button"
+                                        disabled={saving}
                                         onClick={() => setEditingSection(null)}
-                                        className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm font-medium hover:bg-gray-50"
+                                        className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
                                     >
                                         Cancel
                                     </button>
@@ -633,7 +731,7 @@ const EmployeeDetails = () => {
                                         <div>
                                             <p className="text-xs text-gray-500 uppercase font-medium mb-1">Monthly CTC</p>
                                             <p className="text-lg font-bold text-gray-900">
-                                                {formatCurrency(employee.annualCtc / 12)} <span className="text-sm font-normal text-gray-500">per month</span>
+                                                {formatCurrency((Number(employee.annualCtc) || 0) / 12)} <span className="text-sm font-normal text-gray-500">per month</span>
                                             </p>
                                         </div>
                                     </div>
@@ -670,26 +768,26 @@ const EmployeeDetails = () => {
                                                 {/* Basic */}
                                                 <SalaryRow
                                                     label="Basic"
-                                                    subLabel={`(${(employee.basicSalary / employee.annualCtc * 100).toFixed(2)} % of CTC)`}
-                                                    monthly={employee.basicSalary / 12}
-                                                    annual={employee.basicSalary}
+                                                    subLabel={`(${(Number(employee.annualCtc) > 0 ? (Number(employee.basicSalary) / Number(employee.annualCtc) * 100).toFixed(2) : '0.00')} % of CTC)`}
+                                                    monthly={(Number(employee.basicSalary) || 0) / 12}
+                                                    annual={Number(employee.basicSalary) || 0}
                                                 />
 
                                                 {/* HRA */}
-                                                {employee.hra > 0 && (
+                                                {(Number(employee.hra) || 0) > 0 && (
                                                     <SalaryRow
                                                         label="House Rent Allowance"
-                                                        subLabel={`(${(employee.hra / employee.annualCtc * 100).toFixed(2)} % of CTC)`}
-                                                        monthly={employee.hra / 12}
-                                                        annual={employee.hra}
+                                                        subLabel={`(${(Number(employee.annualCtc) > 0 ? (Number(employee.hra) / Number(employee.annualCtc) * 100).toFixed(2) : '0.00')} % of CTC)`}
+                                                        monthly={(Number(employee.hra) || 0) / 12}
+                                                        annual={Number(employee.hra) || 0}
                                                     />
                                                 )}
 
                                                 {/* Fixed Allowance (Balancing figure) */}
                                                 <SalaryRow
                                                     label="Fixed Allowance"
-                                                    monthly={(employee.annualCtc - employee.basicSalary - (employee.hra || 0)) / 12}
-                                                    annual={employee.annualCtc - employee.basicSalary - (employee.hra || 0)}
+                                                    monthly={((Number(employee.annualCtc) || 0) - (Number(employee.basicSalary) || 0) - (Number(employee.hra) || 0)) / 12}
+                                                    annual={(Number(employee.annualCtc) || 0) - (Number(employee.basicSalary) || 0) - (Number(employee.hra) || 0)}
                                                 />
                                             </div>
 
@@ -697,8 +795,8 @@ const EmployeeDetails = () => {
                                             <div className="flex justify-between items-center border-t border-gray-200 mt-6 pt-4">
                                                 <div className="text-sm font-semibold text-gray-900">Cost to Company</div>
                                                 <div className="w-1/2 grid grid-cols-2 gap-4 text-right">
-                                                    <div className="text-sm font-semibold text-gray-900">{formatCurrency(employee.annualCtc / 12)}</div>
-                                                    <div className="text-sm font-semibold text-gray-900">{formatCurrency(employee.annualCtc)}</div>
+                                                    <div className="text-sm font-semibold text-gray-900">{formatCurrency((Number(employee.annualCtc) || 0) / 12)}</div>
+                                                    <div className="text-sm font-semibold text-gray-900">{formatCurrency(Number(employee.annualCtc) || 0)}</div>
                                                 </div>
                                             </div>
                                         </div>

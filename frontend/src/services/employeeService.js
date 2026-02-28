@@ -12,21 +12,17 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
  * @returns {Promise<Array>}
  */
 export const getAllEmployees = async () => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/employees`, {
-      method: "GET",
-      headers: getAuthHeaders(),
-    });
+  const response = await fetch(`${API_BASE_URL}/api/employees`, {
+    method: "GET",
+    headers: getAuthHeaders(),
+  });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch employees");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching employees:", error);
-    throw error;
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || "Failed to fetch employees");
   }
+
+  return await response.json();
 };
 
 /**
@@ -35,21 +31,20 @@ export const getAllEmployees = async () => {
  * @returns {Promise<Object>}
  */
 export const getEmployeeById = async (id) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/employees/${id}`, {
-      method: "GET",
-      headers: getAuthHeaders(),
-    });
+  const response = await fetch(`${API_BASE_URL}/api/employees/${id}`, {
+    method: "GET",
+    headers: getAuthHeaders(),
+  });
 
-    if (!response.ok) {
+  if (!response.ok) {
+    if (response.status === 404) {
       throw new Error("Employee not found");
     }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching employee:", error);
-    throw error;
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || "Failed to fetch employee");
   }
+
+  return await response.json();
 };
 
 /**
@@ -58,24 +53,18 @@ export const getEmployeeById = async (id) => {
  * @returns {Promise<Object>}
  */
 export const createEmployee = async (employeeData) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/employees`, {
-      method: "POST",
-      headers: getAuthHeaders(),
-      body: JSON.stringify(employeeData),
-    });
+  const response = await fetch(`${API_BASE_URL}/api/employees`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(employeeData),
+  });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Failed to create employee");
-    }
-
-    return data;
-  } catch (error) {
-    console.error("Error creating employee:", error);
-    throw error;
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || "Failed to create employee");
   }
+
+  return await response.json();
 };
 
 /**
@@ -85,25 +74,19 @@ export const createEmployee = async (employeeData) => {
  * @returns {Promise<Object>}
  */
 export const updateEmployee = async (id, employeeData) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/employees/${id}`, {
-        method: "PUT",
-        headers: getAuthHeaders(),
-        body: JSON.stringify(employeeData),
-      });
-  
-      const data = await response.json();
-  
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to update employee");
-      }
-  
-      return data;
-    } catch (error) {
-      console.error("Error updating employee:", error);
-      throw error;
-    }
-  };
+  const response = await fetch(`${API_BASE_URL}/api/employees/${id}`, {
+    method: "PUT",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(employeeData),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || "Failed to update employee");
+  }
+
+  return await response.json();
+};
 
 /**
  * Delete employee
@@ -111,26 +94,23 @@ export const updateEmployee = async (id, employeeData) => {
  * @returns {Promise<void>}
  */
 export const deleteEmployee = async (id) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/employees/${id}`, {
-        method: "DELETE",
-        headers: getAuthHeaders(),
-      });
-  
-      if (!response.ok) {
-        throw new Error("Failed to delete employee");
-      }
-    } catch (error) {
-      console.error("Error deleting employee:", error);
-      throw error;
-    }
-  };
+  const response = await fetch(`${API_BASE_URL}/api/employees/${id}`, {
+    method: "DELETE",
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || "Failed to delete employee");
+  }
+  // 204 No Content — do not try to parse JSON
+};
 
 // Export as default object for compatibility with "import employeeService from ..."
 export default {
-    getAllEmployees,
-    getEmployeeById,
-    createEmployee,
-    updateEmployee,
-    deleteEmployee
+  getAllEmployees,
+  getEmployeeById,
+  createEmployee,
+  updateEmployee,
+  deleteEmployee,
 };
