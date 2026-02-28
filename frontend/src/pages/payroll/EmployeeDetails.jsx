@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { getEmployeeById, updateEmployee, deleteEmployee } from "../../services/employeeService";
 import {
     ArrowLeftIcon,
     EllipsisHorizontalIcon,
@@ -20,6 +20,11 @@ const EmployeeDetails = () => {
     const [activeTab, setActiveTab] = useState("overview");
     const [editingSection, setEditingSection] = useState(null);
     const [formData, setFormData] = useState({});
+    const [exitForm, setExitForm] = useState({
+        lastWorkingDay: "",
+        reason: "",
+        notes: ""
+    });
 
     // UI Action States
     const [showActionMenu, setShowActionMenu] = useState(false);
@@ -55,8 +60,8 @@ const EmployeeDetails = () => {
 
     const fetchEmployee = async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/employees/${id}`);
-            setEmployee(response.data);
+            const data = await getEmployeeById(id);
+            setEmployee(data);
         } catch (error) {
             console.error("Error fetching employee details:", error);
         } finally {
@@ -64,16 +69,48 @@ const EmployeeDetails = () => {
         }
     };
 
-    const handleSave = async () => {
+    const handleSave = async (dataToSave = formData) => {
         try {
-            const response = await axios.put(`http://localhost:8080/api/employees/${id}`, formData);
-            setEmployee(response.data);
+            const data = await updateEmployee(id, dataToSave);
+            setEmployee(data);
             setEditingSection(null);
-            // Optional: Show success toast
             console.log("Updated successfully");
         } catch (error) {
             console.error("Error updating employee:", error);
             alert("Failed to update employee.");
+        }
+    };
+
+    const handleDelete = async () => {
+        try {
+            await deleteEmployee(id);
+            setShowDeleteModal(false);
+            navigate('/payroll/employees');
+        } catch (error) {
+            console.error("Error deleting employee:", error);
+            alert("Failed to delete employee.");
+        }
+    };
+
+    const handleExitProcess = async (exitData) => {
+        try {
+            // Check if reason maps to EmployeeStatus
+            let newStatus = "ACTIVE";
+            if (exitData.reason === "resignation") newStatus = "RESIGNED";
+            else if (exitData.reason === "termination") newStatus = "TERMINATED";
+
+            const updatedEmployee = {
+                ...employee,
+                status: newStatus,
+            };
+
+            const data = await updateEmployee(id, updatedEmployee);
+            setEmployee(data);
+            setShowExitModal(false);
+            console.log("Exit process completed");
+        } catch (error) {
+            console.error("Error initiating exit process:", error);
+            alert("Failed to initiate exit process.");
         }
     };
 
@@ -265,8 +302,9 @@ const EmployeeDetails = () => {
                                             <label className="block text-xs font-medium text-gray-700 mb-1">Gender <span className="text-red-500">*</span></label>
                                             <select value={formData.gender || ''} onChange={(e) => setFormData({ ...formData, gender: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm">
                                                 <option value="">Select</option>
-                                                <option value="Male">Male</option>
-                                                <option value="Female">Female</option>
+                                                <option value="MALE">Male</option>
+                                                <option value="FEMALE">Female</option>
+                                                <option value="OTHER">Other</option>
                                             </select>
                                         </div>
                                         <div>
@@ -368,7 +406,7 @@ const EmployeeDetails = () => {
                                         </div>
                                         <div className="col-span-2">
                                             <label className="block text-xs font-medium text-gray-700 mb-1">Residential Address</label>
-                                            <textarea rows={3} value={formData.address || ''} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm" />
+                                            <textarea rows={3} value={formData.presentAddress || ''} onChange={(e) => setFormData({ ...formData, presentAddress: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm" />
                                         </div>
                                     </div>
                                     <div className="flex gap-3 pt-4">
@@ -382,7 +420,7 @@ const EmployeeDetails = () => {
                                 <GridItem label="Date of Birth" value={employee.dateOfBirth || '-'} />
                                 <GridItem label="Email Address" value={employee.personalEmail || '-'} />
                                 <GridItem label="Father's Name" value={employee.fatherName || '-'} />
-                                <GridItem label="Residential Address" value={employee.address || '-'} />
+                                <GridItem label="Residential Address" value={employee.presentAddress || '-'} />
                                 <GridItem label="PAN" value={employee.panNumber || '-'} />
                                 <GridItem label="Differently Abled Type" value="None" />
                             </Section>
@@ -542,16 +580,15 @@ const EmployeeDetails = () => {
                                             const annualCtc = formData.annualCtc || 0;
                                             const basic = annualCtc * 0.5;
                                             const fixed = annualCtc - basic;
-
-                                            setFormData({
+                                            const updatedData = {
                                                 ...formData,
                                                 basicSalary: basic,
-                                                // Assuming fixed allowance maps to specialAllowances or similar in backend, 
-                                                // or strictly Basic + Fixed = CTC. 
+                                                // Assuming fixed allowance maps to specialAllowances or similar in backend,
+                                                // or strictly Basic + Fixed = CTC.
                                                 // For now, let's map it:
                                                 specialAllowances: fixed
-                                            });
-                                            handleSave();
+                                            };
+                                            handleSave(updatedData);
                                         }}
                                         className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700"
                                     >
@@ -699,7 +736,7 @@ const EmployeeDetails = () => {
                                         placeholder="Select"
                                         value=""
                                         onChange={(val) => console.log(val)}
-                                    // Hack to show "+ New Deduction" at bottom - handled by Custom Dropdown component if we modifying it, 
+                                    // Hack to show "+ New Deduction" at bottom - handled by Custom Dropdown component if we modifying it,
                                     // but we can also rely on the existing "Add New" feature in SearchableDropdown
                                     />
                                     <div className="mt-2 text-blue-500 text-sm font-medium cursor-pointer hover:underline flex items-center gap-1">
@@ -760,12 +797,7 @@ const EmployeeDetails = () => {
                                     </h3>
                                     <div className="flex gap-3 mt-6">
                                         <button
-                                            onClick={() => {
-                                                // TODO: Implement actual delete call
-                                                console.log("Deleting employee...");
-                                                setShowDeleteModal(false);
-                                                navigate('/payroll/employees');
-                                            }}
+                                            onClick={handleDelete}
                                             className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm font-medium shadow-sm transition-colors"
                                         >
                                             Yes
@@ -894,12 +926,22 @@ const EmployeeDetails = () => {
                                 <div className="flex-1 space-y-6 max-w-2xl">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Last Working Day<span className="text-red-500">*</span></label>
-                                        <input type="date" className="w-full px-3 py-2 border border-gray-300 rounded text-sm text-gray-500 focus:ring-blue-500 focus:border-blue-500" placeholder="dd/MM/yyyy" />
+                                        <input
+                                            type="date"
+                                            value={exitForm.lastWorkingDay}
+                                            onChange={(e) => setExitForm({...exitForm, lastWorkingDay: e.target.value})}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded text-sm text-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="dd/MM/yyyy"
+                                        />
                                     </div>
 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Exit<span className="text-red-500">*</span></label>
-                                        <select className="w-full px-3 py-2 border border-gray-300 rounded text-sm text-gray-500 focus:ring-blue-500 focus:border-blue-500">
+                                        <select
+                                            value={exitForm.reason}
+                                            onChange={(e) => setExitForm({...exitForm, reason: e.target.value})}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded text-sm text-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                                        >
                                             <option value="">Select</option>
                                             <option value="resignation">Resignation</option>
                                             <option value="termination">Termination</option>
@@ -923,12 +965,17 @@ const EmployeeDetails = () => {
 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Personal Email Address <span className="text-gray-400">ⓘ</span></label>
-                                        <input type="email" className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500" />
+                                        <input type="email" value={employee.personalEmail || ''} readOnly className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500 bg-gray-50" />
                                     </div>
 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-                                        <textarea rows={4} className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500 resize-none"></textarea>
+                                        <textarea
+                                            rows={4}
+                                            value={exitForm.notes}
+                                            onChange={(e) => setExitForm({...exitForm, notes: e.target.value})}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500 resize-none"
+                                        ></textarea>
                                     </div>
 
                                     <div className="bg-orange-50 border border-orange-100 rounded-md p-4">
@@ -940,7 +987,7 @@ const EmployeeDetails = () => {
 
                                     <div className="flex gap-3 pt-4">
                                         <button
-                                            onClick={() => { console.log("Exit process initiated"); setShowExitModal(false); }}
+                                            onClick={() => handleExitProcess(exitForm)}
                                             className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded font-medium shadow-sm transition-colors text-sm"
                                         >
                                             Proceed

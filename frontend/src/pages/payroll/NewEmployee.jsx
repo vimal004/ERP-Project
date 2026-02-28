@@ -8,7 +8,7 @@ import {
   PlusIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import axios from "axios";
+import { createEmployee } from "../../services/employeeService";
 
 const SearchableDropdown = ({
   label,
@@ -307,18 +307,11 @@ const NewEmployee = () => {
     };
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/employees",
-        payload,
-      );
-      if (response.status === 200) {
-        navigate("/payroll/employees");
-      }
+      await createEmployee(payload);
+      navigate("/payroll/employees");
     } catch (err) {
       console.error("Error creating employee:", err);
-      setError(
-        "Failed to create employee. Please check the data and try again.",
-      );
+      setError(err.message || "Failed to create employee. Please check the data and try again.");
     } finally {
       setIsLoading(false);
     }

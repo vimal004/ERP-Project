@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { getAllEmployees } from "../../services/employeeService";
 import {
   PlusIcon,
   MagnifyingGlassIcon,
@@ -36,9 +36,8 @@ const Employees = () => {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      // Adjust API URL if needed. Assuming proxy or running on same host, but using localhost:8080 explicitly for now as configured in backend.
-      const response = await axios.get("http://localhost:8080/api/employees");
-      setEmployees(response.data);
+      const data = await getAllEmployees();
+      setEmployees(data);
     } catch (error) {
       console.error("Error fetching employees:", error);
     } finally {
