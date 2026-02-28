@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllEmployees } from "../../services/employeeService";
+import { isAdmin } from "../../services/authService";
 import {
   PlusIcon,
   MagnifyingGlassIcon,
@@ -145,13 +146,15 @@ const Employees = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate("/payroll/employees/new")}
-              className="bg-[#1a73e8] text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-blue-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
-            >
-              <PlusIcon className="w-4 h-4 text-white" />
-              Add Employee
-            </button>
+            {isAdmin() && (
+              <button
+                onClick={() => navigate("/payroll/employees/new")}
+                className="bg-[#1a73e8] text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-blue-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+              >
+                <PlusIcon className="w-4 h-4 text-white" />
+                Add Employee
+              </button>
+            )}
             <button
               onClick={() => setIsFilterSidebarOpen(true)}
               className="p-2 border border-gray-200 rounded-full hover:bg-gray-50 text-gray-600 transition-colors"

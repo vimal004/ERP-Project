@@ -9,6 +9,7 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { createEmployee } from "../../services/employeeService";
+import { isAdmin } from "../../services/authService";
 
 const SearchableDropdown = ({
   label,
@@ -149,6 +150,13 @@ const SearchableDropdown = ({
 
 const NewEmployee = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAdmin()) {
+      navigate("/payroll/employees");
+    }
+  }, [navigate]);
+
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");

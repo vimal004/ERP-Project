@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getEmployeeById, updateEmployee, deleteEmployee } from "../../services/employeeService";
+import { isAdmin } from "../../services/authService";
 import {
     ArrowLeftIcon,
     EllipsisHorizontalIcon,
@@ -150,64 +151,68 @@ const EmployeeDetails = () => {
                 </div>
                 <div className="flex gap-2">
                     {/* Add Menu */}
-                    <div className="relative" ref={addMenuRef}>
-                        <button
-                            onClick={() => setShowAddMenu(!showAddMenu)}
-                            className="px-3 py-1.5 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 bg-white shadow-sm flex items-center gap-1"
-                        >
-                            Add <ChevronDownIcon className="w-3 h-3 text-gray-400" />
-                        </button>
+                    {isAdmin() && (
+                        <div className="relative" ref={addMenuRef}>
+                            <button
+                                onClick={() => setShowAddMenu(!showAddMenu)}
+                                className="px-3 py-1.5 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 bg-white shadow-sm flex items-center gap-1"
+                            >
+                                Add <ChevronDownIcon className="w-3 h-3 text-gray-400" />
+                            </button>
 
-                        {showAddMenu && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 z-50 py-1 animate-in fade-in zoom-in-95 duration-100">
-                                <button
-                                    onClick={() => { setShowDeductionModal(true); setShowAddMenu(false); }}
-                                    className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:text-white hover:bg-blue-500"
-                                >
-                                    Deduction
-                                </button>
-                                <button
-                                    onClick={() => { setShowBenefitModal(true); setShowAddMenu(false); }}
-                                    className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:text-white hover:bg-blue-500"
-                                >
-                                    Benefit
-                                </button>
-                            </div>
-                        )}
-                    </div>
+                            {showAddMenu && (
+                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 z-50 py-1 animate-in fade-in zoom-in-95 duration-100">
+                                    <button
+                                        onClick={() => { setShowDeductionModal(true); setShowAddMenu(false); }}
+                                        className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:text-white hover:bg-blue-500"
+                                    >
+                                        Deduction
+                                    </button>
+                                    <button
+                                        onClick={() => { setShowBenefitModal(true); setShowAddMenu(false); }}
+                                        className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:text-white hover:bg-blue-500"
+                                    >
+                                        Benefit
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     {/* Action Menu */}
-                    <div className="relative" ref={actionMenuRef}>
-                        <button
-                            onClick={() => setShowActionMenu(!showActionMenu)}
-                            className={`p-2 border rounded shadow-sm ${showActionMenu ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'}`}
-                        >
-                            <EllipsisHorizontalIcon className="w-5 h-5" />
-                        </button>
+                    {isAdmin() && (
+                        <div className="relative" ref={actionMenuRef}>
+                            <button
+                                onClick={() => setShowActionMenu(!showActionMenu)}
+                                className={`p-2 border rounded shadow-sm ${showActionMenu ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'}`}
+                            >
+                                <EllipsisHorizontalIcon className="w-5 h-5" />
+                            </button>
 
-                        {showActionMenu && (
-                            <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 z-50 py-2 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
-                                <button
-                                    onClick={() => { setShowVehicleModal(true); setShowActionMenu(false); }}
-                                    className="w-full text-left px-4 py-2.5 text-sm text-white bg-blue-500 hover:bg-blue-600 font-medium mb-1 mx-2 rounded w-[calc(100%-16px)]"
-                                >
-                                    Add / Update Vehicle Details
-                                </button>
-                                <button
-                                    onClick={() => { setShowDeleteModal(true); setShowActionMenu(false); }}
-                                    className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-                                >
-                                    Delete Employee
-                                </button>
-                                <button
-                                    onClick={() => { setShowExitModal(true); setShowActionMenu(false); }}
-                                    className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-                                >
-                                    Initiate Exit Process
-                                </button>
-                            </div>
-                        )}
-                    </div>
+                            {showActionMenu && (
+                                <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 z-50 py-2 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+                                    <button
+                                        onClick={() => { setShowVehicleModal(true); setShowActionMenu(false); }}
+                                        className="w-full text-left px-4 py-2.5 text-sm text-white bg-blue-500 hover:bg-blue-600 font-medium mb-1 mx-2 rounded w-[calc(100%-16px)]"
+                                    >
+                                        Add / Update Vehicle Details
+                                    </button>
+                                    <button
+                                        onClick={() => { setShowDeleteModal(true); setShowActionMenu(false); }}
+                                        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                                    >
+                                        Delete Employee
+                                    </button>
+                                    <button
+                                        onClick={() => { setShowExitModal(true); setShowActionMenu(false); }}
+                                        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                                    >
+                                        Initiate Exit Process
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
                     <button onClick={() => navigate('/payroll/employees')} className="p-2 rounded text-gray-400 hover:bg-gray-100"><XMarkIcon className="w-6 h-6" /></button>
                 </div>
             </div>
@@ -360,7 +365,7 @@ const EmployeeDetails = () => {
                                 </form>
                             </div>
                         ) : (
-                            <Section title="Basic Information" onEdit={() => { setFormData(employee); setEditingSection('basic'); }}>
+                            <Section title="Basic Information" onEdit={isAdmin() ? () => { setFormData(employee); setEditingSection('basic'); } : null}>
                                 <GridItem label="Name" value={`${employee.firstName} ${employee.lastName}`} />
                                 <GridItem label="Work Location" value={employee.workLocation} />
 
@@ -416,7 +421,7 @@ const EmployeeDetails = () => {
                                 </form>
                             </div>
                         ) : (
-                            <Section title="Personal Information" onEdit={() => { setFormData(employee); setEditingSection('personal'); }}>
+                            <Section title="Personal Information" onEdit={isAdmin() ? () => { setFormData(employee); setEditingSection('personal'); } : null}>
                                 <GridItem label="Date of Birth" value={employee.dateOfBirth || '-'} />
                                 <GridItem label="Email Address" value={employee.personalEmail || '-'} />
                                 <GridItem label="Father's Name" value={employee.fatherName || '-'} />
@@ -449,7 +454,7 @@ const EmployeeDetails = () => {
                                 </form>
                             </div>
                         ) : (
-                            <Section title="Payment Information" onEdit={() => { setFormData(employee); setEditingSection('payment'); }}>
+                            <Section title="Payment Information" onEdit={isAdmin() ? () => { setFormData(employee); setEditingSection('payment'); } : null}>
                                 <GridItem label="Payment Mode" value={employee.paymentMode} />
                             </Section>
                         )}
@@ -608,10 +613,12 @@ const EmployeeDetails = () => {
                                 {/* Header with Edit Icon */}
                                 <div className="flex items-center gap-2 mb-2">
                                     <h2 className="text-base font-semibold text-gray-800">Salary Details</h2>
-                                    <PencilSquareIcon
-                                        onClick={() => { setFormData(employee); setEditingSection('salary'); }}
-                                        className="w-4 h-4 text-gray-400 cursor-pointer hover:text-blue-600"
-                                    />
+                                    {isAdmin() && (
+                                        <PencilSquareIcon
+                                            onClick={() => { setFormData(employee); setEditingSection('salary'); }}
+                                            className="w-4 h-4 text-gray-400 cursor-pointer hover:text-blue-600"
+                                        />
+                                    )}
                                 </div>
 
                                 {/* CTC Card */}
