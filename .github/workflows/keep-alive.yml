@@ -2,9 +2,10 @@ name: Keep Backend Alive
 
 on:
   schedule:
-    # Runs every 14 minutes (Render free tier spins down after 15 mins of inactivity)
+    # Ping every 14 minutes — Render sleeps after 15 min of inactivity
+    # GitHub Actions cron only supports 5-minute minimum granularity
     - cron: '*/14 * * * *'
-  workflow_dispatch: # Allows manual triggering
+  workflow_dispatch: # Manual trigger
 
 jobs:
   ping:
@@ -12,6 +13,16 @@ jobs:
     steps:
       - name: Ping Render Backend
         run: |
-          # Replace the URL below with your actual Render service URL if it's different
-          # You can find the URL in your Render Dashboard
-          curl -f https://erp-backend.onrender.com/actuator/health || echo "Ping failed, but continuing..."
+          echo "Pinging backend to keep it alive..."
+          # Try up to 3 times in case the first ping is waking it up
+          for i in 1 2 3; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 120 https://erp-backend.onrender.com/actuator/health || true)
+            echo "Attempt $i: HTTP $STATUS"
+            if [ "$STATUS" = "200" ]; then
+              echo "Backend is alive!"
+              exit 0
+            fi
+            echo "Waiting 30s before retry..."
+            sleep 30
+          done
+          echo "Backend did not respond after 3 attempts. It may be starting up."
