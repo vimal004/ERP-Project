@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
@@ -38,8 +39,16 @@ public class DataInitializer {
          * - user@company.com / user123 (User)
          */
         @Bean
-        public CommandLineRunner initializeData(UserRepository userRepository, ItemRepository itemRepository) {
+        public CommandLineRunner initializeData(UserRepository userRepository, ItemRepository itemRepository, JdbcTemplate jdbcTemplate) {
                 return args -> {
+                        // Cleanup legacy columns in development/production if they exist
+                        try {
+                                log.info("Cleaning up legacy 'email' column from 'employees' table...");
+                                jdbcTemplate.execute("ALTER TABLE employees DROP COLUMN IF EXISTS email;");
+                        } catch (Exception e) {
+                                log.warn("Database cleanup skip: {}", e.getMessage());
+                        }
+
                         // Create Admin user if not exists
                         if (!userRepository.existsByEmail("admin@company.com")) {
                                 User admin = User.builder()
